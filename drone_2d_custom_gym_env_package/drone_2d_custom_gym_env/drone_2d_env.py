@@ -178,7 +178,11 @@ class Drone2dEnv(gym.Env):
     def render(self, mode='human', close=False):
         if self.render_sim is False: return
 
-        pygame_events(self.space, self, self.change_target)
+        try:
+            pygame_events(self.space, self, self.change_target)
+        except Exception as e:
+            print(f"Warning: Error in pygame event handling: {e}")
+            # Continue with rendering even if event handling fails
         self.screen.fill((243, 243, 243))
         pygame.draw.rect(self.screen, (24, 114, 139), pygame.Rect(0, 0, 800, 800), 8)
         pygame.draw.rect(self.screen, (33, 158, 188), pygame.Rect(50, 50, 700, 700), 4)

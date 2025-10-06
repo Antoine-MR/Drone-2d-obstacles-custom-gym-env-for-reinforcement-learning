@@ -22,11 +22,7 @@ Essaie plusieurs modèles dans l'ordre de préférence
 """
 # Liste des modèles à essayer dans l'ordre de préférence
 model_paths = [
-    "../../final_agent.zip",                              # Modèle final (s'il existe)
-    "../../checkpoint_agent_interrupted_1759758715.zip",  # Checkpoint d'interruption
-    "../../checkpoint_agent_step_450000.zip",             # Dernier checkpoint automatique
-    "../../checkpoint_agent_step_400000.zip",             # Checkpoint précédent
-    "ppo_agents/ppo_agent.zip"                            # Agent d'exemple original
+    "final_agent.zip",                              # Modèle final (s'il existe)
 ]
 
 model = None
