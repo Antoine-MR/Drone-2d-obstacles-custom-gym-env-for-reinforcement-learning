@@ -1,9 +1,9 @@
 from drone_2d_custom_gym_env.Drone import *
 from drone_2d_custom_gym_env.event_handler import *
 
-import gym
-from gym import spaces
-from gym.utils import seeding
+import gymnasium as gym
+from gymnasium import spaces
+from gymnasium.utils import seeding
 import numpy as np
 import random
 import os
@@ -96,6 +96,11 @@ class Drone2dEnv(gym.Env):
 
         self.drone_radius = self.drone.drone_radius
 
+    def seed(self, seed=None):
+        random.seed(seed)
+        np.random.seed(seed)
+        return [seed]
+
     def step(self, action):
         if self.first_step is True:
             if self.render_sim is True and self.render_path is True: self.add_postion_to_drop_path()
@@ -138,7 +143,7 @@ class Drone2dEnv(gym.Env):
         if self.current_time_step == self.max_time_steps:
             self.done = True
 
-        return obs, reward, self.done, self.info
+        return obs, reward, self.done, False, self.info
 
     def get_observation(self):
         velocity_x, velocity_y = self.drone.frame_shape.body.velocity_at_local_point((0, 0))
@@ -216,10 +221,12 @@ class Drone2dEnv(gym.Env):
         pygame.display.flip()
         self.clock.tick(60)
 
-    def reset(self):
+    def reset(self, seed=None, options=None):
+        if seed is not None:
+            self.seed(seed)
         self.__init__(self.render_sim, self.render_path, self.render_shade, self.drone_shade_distance,
                       self.max_time_steps, self.stabilisation_delay, self.change_target, self.initial_throw)
-        return self.get_observation()
+        return self.get_observation(), {}
 
     def close(self):
         pygame.quit()

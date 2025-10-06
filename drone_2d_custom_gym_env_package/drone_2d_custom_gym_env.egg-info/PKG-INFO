@@ -1,0 +1,15 @@
+Metadata-Version: 2.4
+Name: drone_2d_custom_gym_env
+Version: 0.0.0
+Home-page: https://github.com/marek-robak/Drone-2d-custom-gym-env-for-reinforcement-learning.git
+Download-URL: https://pypi.org/project/drone-2d-custom-gym-env/
+Keywords: reinforcement learning,gym environment,StableBaselines3,OpenAI Gym
+Requires-Dist: gym
+Requires-Dist: pygame
+Requires-Dist: pymunk
+Requires-Dist: numpy
+Requires-Dist: stable-baselines3[extra]
+Dynamic: download-url
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: requires-dist

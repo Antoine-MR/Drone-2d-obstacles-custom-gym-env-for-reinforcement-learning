@@ -1,5 +1,5 @@
 from drone_2d_custom_gym_env.drone_2d_env import *
-from gym.envs.registration import register
+from gymnasium.envs.registration import register
 
 register(
     id='drone-2d-custom-v0',

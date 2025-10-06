@@ -1,7 +1,10 @@
 from stable_baselines3 import PPO
-import gym
+import gymnasium as gym
 import time
 import sys
+import os
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'drone_2d_custom_gym_env_package'))
 
 import drone_2d_custom_gym_env
 
@@ -14,23 +17,53 @@ env = gym.make('drone-2d-custom-v0', render_sim=render_sim, render_path=True, re
             shade_distance=70, n_steps=500, n_fall_steps=10, change_target=True, initial_throw=True)
 
 """
-The example agent used here was originally trained with Python 3.7
-For this reason, it is not compatible with Python version >= 3.8
-Agent has been adapted to run in the newer version of Python,
-but because of this, you cannot easily resume their training.
-If you are interested in resuming learning, please use Python 3.7.
+Chargement du modèle entraîné
+Essaie plusieurs modèles dans l'ordre de préférence
 """
-if sys.version_info.major == 3 and sys.version_info.minor >= 8:
-    model = PPO.load("ppo_agents/ppo_agent.zip")
-else:
-    model = PPO.load("ppo_agents/ppo_agent_python3.7.zip")
+# Liste des modèles à essayer dans l'ordre de préférence
+model_paths = [
+    "../../final_agent.zip",                              # Modèle final (s'il existe)
+    "../../checkpoint_agent_interrupted_1759758715.zip",  # Checkpoint d'interruption
+    "../../checkpoint_agent_step_450000.zip",             # Dernier checkpoint automatique
+    "../../checkpoint_agent_step_400000.zip",             # Checkpoint précédent
+    "ppo_agents/ppo_agent.zip"                            # Agent d'exemple original
+]
+
+model = None
+for model_path in model_paths:
+    try:
+        model = PPO.load(model_path)
+        print(f"✅ Modèle chargé: {model_path}")
+        break
+    except FileNotFoundError:
+        print(f"⚠️  Modèle non trouvé: {model_path}")
+        continue
+    except Exception as e:
+        print(f"❌ Erreur lors du chargement de {model_path}: {e}")
+        continue
+
+if model is None:
+    print("❌ Aucun modèle trouvé! Veuillez d'abord entraîner un modèle.")
+    exit(1)
 
 model.set_env(env)
 
 random_seed = int(time.time())
 model.set_random_seed(random_seed)
 
-obs = env.reset()
+# Nouvelle API Gymnasium : env.reset() retourne (obs, info)
+obs, info = env.reset()
+
+# Variables pour les statistiques
+episode_count = 0
+total_reward = 0
+step_count = 0
+
+print(f"🚀 Démarrage de l'évaluation")
+print(f"   • Mode continu: {continuous_mode}")
+print(f"   • Actions aléatoires: {random_action}")
+print(f"   • Rendu graphique: {render_sim}")
+print("   • Appuyez sur Ctrl+C pour arrêter")
 
 try:
     while True:
@@ -40,15 +73,35 @@ try:
         if random_action:
             action = env.action_space.sample()
         else:
-            action, _states = model.predict(obs)
+            action, _states = model.predict(obs, deterministic=True)
 
-        obs, reward, done, info = env.step(action)
+        # Nouvelle API Gymnasium : env.step() retourne (obs, reward, terminated, truncated, info)
+        obs, reward, terminated, truncated, info = env.step(action)
+        done = terminated or truncated
+        
+        total_reward += reward
+        step_count += 1
 
         if done is True:
+            episode_count += 1
+            print(f"📊 Épisode {episode_count} terminé:")
+            print(f"   • Récompense totale: {total_reward:.2f}")
+            print(f"   • Nombre d'étapes: {step_count}")
+            
             if continuous_mode is True:
-                state = env.reset()
+                obs, info = env.reset()
+                total_reward = 0
+                step_count = 0
             else:
                 break
+
+except KeyboardInterrupt:
+    print(f"\n⚠️  Évaluation interrompue par l'utilisateur")
+    print(f"📊 Statistiques finales:")
+    print(f"   • Épisodes complétés: {episode_count}")
+    if episode_count > 0:
+        print(f"   • Récompense de l'épisode en cours: {total_reward:.2f}")
+        print(f"   • Étapes de l'épisode en cours: {step_count}")
 
 finally:
     env.close()
