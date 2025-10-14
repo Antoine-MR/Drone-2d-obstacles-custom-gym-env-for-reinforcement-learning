@@ -1,1 +1,38 @@
+# Python cache files
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Python packaging
+*.egg-info/
+build/
+dist/
+
+# Project specific cache
 /drone_2d_custom_gym_env_package/drone_2d_custom_gym_env/__pycache__
+
+# Outputs and results
+outputs/
+results/
+logs/
+tensorboard_logs/
+
+# Weights & Biases
+wandb/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
