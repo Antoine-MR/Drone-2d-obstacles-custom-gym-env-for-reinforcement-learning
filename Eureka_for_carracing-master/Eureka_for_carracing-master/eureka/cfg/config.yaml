@@ -1,6 +1,6 @@
 defaults:
   - _self_
-  - env: shadow_hand
+  - env: drone_2d  # Changed from shadow_hand to drone_2d
   - override hydra/launcher: local
   - override hydra/output: local
 

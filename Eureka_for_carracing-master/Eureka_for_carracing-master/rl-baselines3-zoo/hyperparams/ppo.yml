@@ -641,3 +641,24 @@ Walker2d-v4:
   gae_lambda: 0.95
   max_grad_norm: 1
   vf_coef: 0.871923
+
+# Drone 2D Environment - Eureka optimized
+Drone2D-v0:
+  n_envs: 4
+  n_timesteps: !!float 3e3  # Reduced for faster Eureka iterations
+  policy: 'MlpPolicy'
+  n_steps: 256
+  batch_size: 64
+  gae_lambda: 0.95
+  gamma: 0.99
+  n_epochs: 10
+  ent_coef: 0.01
+  learning_rate: 3e-4
+  clip_range: 0.2
+  max_grad_norm: 0.5
+  vf_coef: 0.5
+  use_sde: False
+  policy_kwargs: "dict(
+                       activation_fn=nn.Tanh,
+                       net_arch=dict(pi=[64, 64], vf=[64, 64])
+                       )"

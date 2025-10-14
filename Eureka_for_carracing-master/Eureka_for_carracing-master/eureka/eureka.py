@@ -26,8 +26,8 @@ logging.basicConfig(level=logging.INFO, stream=sys.stdout, format='')
 EUREKA_ROOT_DIR = os.path.join(os.getcwd(), 'eureka')
 DESCRIPTIONS_DIR = f'{EUREKA_ROOT_DIR}/utils/prompts'
 RL_ROOT_DIR = f'{EUREKA_ROOT_DIR}/../rl-baselines3-zoo/rl_zoo3'
-ENV_DIR = f'{EUREKA_ROOT_DIR}/envs/car_racing'
-output_file = f'{RL_ROOT_DIR}/car_racing_custom.py'
+ENV_DIR = f'{EUREKA_ROOT_DIR}/envs'  # Make it more generic
+# output_file will be set dynamically based on environment
 
 
 def get_free_gpu_memory():
@@ -159,8 +159,9 @@ def main(cfg):
     logging.info("Task description: " + task_description)
 
     env_name = cfg.env.env_name.lower()
-    task_file = f'{ENV_DIR}/{env_name}_temp.py'
-    task_obs_file = f'{ENV_DIR}/{env_name}_obs.py'
+    task_file = f'{ENV_DIR}/{env_name}/{env_name}_temp.py'
+    task_obs_file = f'{ENV_DIR}/{env_name}/{env_name}_obs.py'
+    output_file = f'{RL_ROOT_DIR}/{env_name}_custom.py'
 
     shutil.copy(task_obs_file, f"env_init_environment.py")
 
