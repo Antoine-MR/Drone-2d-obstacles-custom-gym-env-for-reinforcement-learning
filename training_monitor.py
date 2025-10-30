@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-"""
-Script de monitoring des sessions d'entraînement Eureka
-"""
 
 import json
 import os
@@ -15,9 +12,8 @@ class TrainingMonitor:
         self.sessions_dir = self.base_dir / "training_sessions"
         
     def list_sessions(self):
-        """Liste toutes les sessions d'entraînement"""
         if not self.sessions_dir.exists():
-            print("❌ Aucune session trouvée")
+            print("No session found")
             return []
             
         sessions = []
@@ -29,7 +25,6 @@ class TrainingMonitor:
         return sessions
     
     def get_session_status(self, session_dir):
-        """Récupère le statut d'une session"""
         summary_file = session_dir / "training_summary.json"
         if summary_file.exists():
             try:
@@ -40,7 +35,6 @@ class TrainingMonitor:
         return {"status": "no_summary"}
     
     def monitor_active_session(self, session_id=None):
-        """Surveille une session active en temps réel"""
         sessions = self.list_sessions()
         
         if session_id:
@@ -50,87 +44,84 @@ class TrainingMonitor:
                     target_session = session
                     break
             if not target_session:
-                print(f"❌ Session {session_id} non trouvée")
+                print(f"Session {session_id} not found")
                 return
         else:
             if not sessions:
-                print("❌ Aucune session trouvée")
+                print("No session found")
                 return
-            target_session = sessions[0]  # Plus récente
+            target_session = sessions[0]
         
-        print(f"👀 Monitoring de la session: {target_session.name}")
+        print(f"Monitoring session: {target_session.name}")
         print("=" * 60)
         
         while True:
             try:
                 status = self.get_session_status(target_session)
                 
-                print(f"\n⏰ {datetime.now().strftime('%H:%M:%S')}")
-                print(f"📁 Session: {target_session.name}")
-                print(f"📊 Status: {status.get('status', 'unknown')}")
+                print(f"\n{datetime.now().strftime('%H:%M:%S')}")
+                print(f"Session: {target_session.name}")
+                print(f"Status: {status.get('status', 'unknown')}")
                 
                 if 'iterations' in status:
                     completed_iterations = len(status['iterations'])
-                    print(f"🔄 Itérations complétées: {completed_iterations}")
+                    print(f"Completed iterations: {completed_iterations}")
                     
                     if status['iterations']:
                         last_iter = status['iterations'][-1]
-                        print(f"   - Dernière itération: {last_iter['iteration']}")
-                        print(f"   - Eureka success: {'✅' if last_iter.get('eureka_success') else '❌'}")
-                        print(f"   - Training success: {'✅' if last_iter.get('training_success') else '❌'}")
+                        print(f"   - Last iteration: {last_iter['iteration']}")
+                        print(f"   - Eureka success: {'yes' if last_iter.get('eureka_success') else 'no'}")
+                        print(f"   - Training success: {'yes' if last_iter.get('training_success') else 'no'}")
                         
                         if last_iter.get('evaluation_results'):
                             eval_results = last_iter['evaluation_results']
                             print(f"   - Mean reward: {eval_results.get('mean_reward', 'N/A'):.2f}")
                 
-                # Vérifier les fichiers de récompense
                 reward_dir = target_session / "reward_functions"
                 if reward_dir.exists():
                     reward_files = list(reward_dir.glob("*.py"))
-                    print(f"🎯 Fonctions de récompense: {len(reward_files)}")
+                    print(f"Reward functions: {len(reward_files)}")
                 
-                # Vérifier les checkpoints
                 checkpoints_dir = target_session / "checkpoints"
                 if checkpoints_dir.exists():
                     checkpoint_dirs = [d for d in checkpoints_dir.iterdir() if d.is_dir()]
-                    print(f"💾 Checkpoints: {len(checkpoint_dirs)} itérations")
+                    print(f"Checkpoints: {len(checkpoint_dirs)} iterations")
                 
                 if status.get('status') in ['completed', 'failed', 'interrupted']:
-                    print(f"\n🏁 Session terminée avec le status: {status['status']}")
+                    print(f"\nSession terminated with status: {status['status']}")
                     break
                 
                 print("-" * 40)
-                time.sleep(10)  # Attendre 10 secondes
+                time.sleep(10)
                 
             except KeyboardInterrupt:
-                print("\n👋 Monitoring arrêté par l'utilisateur")
+                print("\nMonitoring stopped by user")
                 break
             except Exception as e:
-                print(f"❌ Erreur de monitoring: {e}")
+                print(f"Monitoring error: {e}")
                 time.sleep(5)
     
     def print_session_summary(self, session_dir):
-        """Affiche le résumé d'une session"""
         status = self.get_session_status(session_dir)
         
-        print(f"\n📋 RÉSUMÉ - {session_dir.name}")
+        print(f"\nSUMMARY - {session_dir.name}")
         print("=" * 50)
         
         if 'error' in status:
-            print(f"❌ Erreur: {status['error']}")
+            print(f"Error: {status['error']}")
             return
         
-        print(f"📊 Status: {status.get('status', 'unknown')}")
-        print(f"🕐 Début: {status.get('start_time', 'N/A')}")
-        print(f"🕑 Fin: {status.get('end_time', 'N/A')}")
+        print(f"Status: {status.get('status', 'unknown')}")
+        print(f"Start: {status.get('start_time', 'N/A')}")
+        print(f"End: {status.get('end_time', 'N/A')}")
         
         if 'iterations' in status:
-            print(f"🔄 Itérations: {len(status['iterations'])}")
+            print(f"Iterations: {len(status['iterations'])}")
             
             for i, iteration in enumerate(status['iterations'], 1):
-                print(f"\n  Itération {i}:")
-                print(f"    - Eureka: {'✅' if iteration.get('eureka_success') else '❌'}")
-                print(f"    - Training: {'✅' if iteration.get('training_success') else '❌'}")
+                print(f"\n  Iteration {i}:")
+                print(f"    - Eureka: {'yes' if iteration.get('eureka_success') else 'no'}")
+                print(f"    - Training: {'yes' if iteration.get('training_success') else 'no'}")
                 
                 if iteration.get('evaluation_results'):
                     results = iteration['evaluation_results']
@@ -139,23 +130,23 @@ class TrainingMonitor:
                 
                 if 'duration' in iteration:
                     duration_min = iteration['duration'] / 60
-                    print(f"    - Durée: {duration_min:.1f} min")
+                    print(f"    - Duration: {duration_min:.1f} min")
 
 def main():
     BASE_DIR = r'C:\Users\antoi\Documents\cours\si5\drl\Drone-2d-obstacles-custom-gym-env-for-reinforcement-learning'
     
     monitor = TrainingMonitor(BASE_DIR)
     
-    print("🔍 EUREKA TRAINING MONITOR")
+    print("EUREKA TRAINING MONITOR")
     print("=" * 40)
     
     sessions = monitor.list_sessions()
     
     if not sessions:
-        print("❌ Aucune session d'entraînement trouvée")
+        print("No training session found")
         return
     
-    print(f"📁 Sessions trouvées: {len(sessions)}")
+    print(f"Sessions found: {len(sessions)}")
     
     for i, session in enumerate(sessions):
         print(f"\n{i+1}. {session.name}")
@@ -164,16 +155,16 @@ def main():
         
         if 'iterations' in status:
             completed = len(status['iterations'])
-            print(f"   Itérations: {completed}")
+            print(f"   Iterations: {completed}")
     
     print("\n" + "=" * 40)
     print("Options:")
-    print("1. Monitorer la session la plus récente")
-    print("2. Voir le résumé de toutes les sessions")
-    print("3. Monitorer une session spécifique")
+    print("1. Monitor most recent session")
+    print("2. View summary of all sessions")
+    print("3. Monitor specific session")
     
     try:
-        choice = input("\nChoisissez une option (1-3): ").strip()
+        choice = input("\nChoose an option (1-3): ").strip()
         
         if choice == "1":
             monitor.monitor_active_session()
@@ -181,24 +172,24 @@ def main():
             for session in sessions:
                 monitor.print_session_summary(session)
         elif choice == "3":
-            print("\nSessions disponibles:")
+            print("\nAvailable sessions:")
             for i, session in enumerate(sessions):
                 print(f"{i+1}. {session.name}")
             
             try:
-                idx = int(input("Numéro de session: ")) - 1
+                idx = int(input("Session number: ")) - 1
                 if 0 <= idx < len(sessions):
                     session_id = sessions[idx].name.split('_')[-1]
                     monitor.monitor_active_session(session_id)
                 else:
-                    print("❌ Numéro invalide")
+                    print("Invalid number")
             except ValueError:
-                print("❌ Numéro invalide")
+                print("Invalid number")
         else:
-            print("❌ Option invalide")
+            print("Invalid option")
             
     except KeyboardInterrupt:
-        print("\n👋 Au revoir!")
+        print("\nGoodbye!")
 
 if __name__ == "__main__":
     main()

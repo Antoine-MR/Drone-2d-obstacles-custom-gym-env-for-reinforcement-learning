@@ -1,37 +1,30 @@
 #!/usr/bin/env python3
-"""
-🚀 LANCEMENT RAPIDE - ENTRAÎNEMENT EUREKA COMPLET
-Script optimisé pour lancer directement un entraînement standard
-"""
 
 import sys
 import os
 from pathlib import Path
 
-# Configuration
 BASE_DIR = r'C:\Users\antoi\Documents\cours\si5\drl\Drone-2d-obstacles-custom-gym-env-for-reinforcement-learning'
 ITERATIONS = 5
 TIMESTEPS_PER_ITERATION = 50000
 
 def main():
-    print("🚀 EUREKA TRAINING - LANCEMENT RAPIDE")
+    print("EUREKA TRAINING - QUICK LAUNCH")
     print("=" * 50)
-    print(f"📁 Répertoire: {BASE_DIR}")
-    print(f"🔄 Itérations: {ITERATIONS}")
-    print(f"⏱️ Timesteps par itération: {TIMESTEPS_PER_ITERATION}")
-    print(f"📊 Total estimé: ~{(ITERATIONS * 5)}-{(ITERATIONS * 10)} minutes")
+    print(f"Directory: {BASE_DIR}")
+    print(f"Iterations: {ITERATIONS}")
+    print(f"Timesteps per iteration: {TIMESTEPS_PER_ITERATION}")
+    print(f"Estimated total: ~{(ITERATIONS * 5)}-{(ITERATIONS * 10)} minutes")
     print("=" * 50)
     
-    # Confirmation
-    response = input("\n🤔 Lancer l'entraînement complet ? (y/N): ").strip().lower()
+    response = input("\nLaunch complete training? (y/N): ").strip().lower()
     
     if response != 'y':
-        print("❌ Entraînement annulé")
+        print("Training cancelled")
         return
     
-    print("\n🏃 Lancement de l'entraînement...")
+    print("\nLaunching training...")
     
-    # Import et lancement
     sys.path.append('training_scripts')
     
     try:
@@ -46,9 +39,9 @@ def main():
         trainer.run_training_session()
         
     except KeyboardInterrupt:
-        print("\n⏹️ Entraînement interrompu par l'utilisateur")
+        print("\nTraining interrupted by user")
     except Exception as e:
-        print(f"\n❌ Erreur: {e}")
+        print(f"\nError: {e}")
         import traceback
         traceback.print_exc()
 

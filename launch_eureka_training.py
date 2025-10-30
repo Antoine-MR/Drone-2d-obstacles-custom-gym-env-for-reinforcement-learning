@@ -1,39 +1,34 @@
 #!/usr/bin/env python3
-"""
-Script de lancement principal pour l'entraînement Eureka
-avec options interactives et gestion robuste
-"""
 
 import sys
 import os
 import subprocess
 from pathlib import Path
 
-# Ajouter le répertoire de scripts au path
 sys.path.append('training_scripts')
 
 from fixed_eureka_training import EurekaTrainingManager
 import numpy as np
 
 def main():
-    print("🚀 EUREKA DRONE TRAINING - LANCEMENT PRINCIPAL")
+    print("EUREKA DRONE TRAINING - MAIN LAUNCHER")
     print("=" * 60)
     
     BASE_DIR = r'C:\Users\antoi\Documents\cours\si5\drl\Drone-2d-obstacles-custom-gym-env-for-reinforcement-learning'
     
-    print("\nOptions d'entraînement disponibles:")
-    print("1. 🧪 Test rapide (1 itération, 5000 timesteps)")
-    print("2. 🏃 Entraînement standard (5 itérations, 50000 timesteps)")
-    print("3. 🏋️ Entraînement intensif (10 itérations, 100000 timesteps)")
-    print("4. ⚙️ Configuration personnalisée")
-    print("5. 📊 Monitoring des sessions existantes")
-    print("6. 🔍 Voir le guide d'entraînement")
+    print("\nAvailable training options:")
+    print("1. Quick test (1 iteration, 5000 timesteps)")
+    print("2. Standard training (5 iterations, 50000 timesteps)")
+    print("3. Intensive training (10 iterations, 100000 timesteps)")
+    print("4. Custom configuration")
+    print("5. Monitor existing sessions")
+    print("6. View training guide")
     
     try:
-        choice = input("\nChoisissez une option (1-6): ").strip()
+        choice = input("\nChoose an option (1-6): ").strip()
         
         if choice == "1":
-            print("\n🧪 Lancement du test rapide...")
+            print("\nLaunching quick test...")
             trainer = EurekaTrainingManager(
                 base_dir=BASE_DIR,
                 iterations=1,
@@ -42,7 +37,7 @@ def main():
             trainer.run_training_session()
             
         elif choice == "2":
-            print("\n🏃 Lancement de l'entraînement standard...")
+            print("\nLaunching standard training...")
             trainer = EurekaTrainingManager(
                 base_dir=BASE_DIR,
                 iterations=5,
@@ -51,7 +46,7 @@ def main():
             trainer.run_training_session()
             
         elif choice == "3":
-            print("\n🏋️ Lancement de l'entraînement intensif...")
+            print("\nLaunching intensive training...")
             trainer = EurekaTrainingManager(
                 base_dir=BASE_DIR,
                 iterations=10,
@@ -60,16 +55,16 @@ def main():
             trainer.run_training_session()
             
         elif choice == "4":
-            print("\n⚙️ Configuration personnalisée:")
+            print("\nCustom configuration:")
             try:
-                iterations = int(input("Nombre d'itérations (défaut: 5): ") or "5")
-                timesteps = int(input("Timesteps par itération (défaut: 50000): ") or "50000")
+                iterations = int(input("Number of iterations (default: 5): ") or "5")
+                timesteps = int(input("Timesteps per iteration (default: 50000): ") or "50000")
                 
-                print(f"\n📋 Configuration:")
-                print(f"   - Itérations: {iterations}")
-                print(f"   - Timesteps par itération: {timesteps}")
+                print(f"\nConfiguration:")
+                print(f"   - Iterations: {iterations}")
+                print(f"   - Timesteps per iteration: {timesteps}")
                 
-                confirm = input("\nConfirmer ? (y/N): ").strip().lower()
+                confirm = input("\nConfirm? (y/N): ").strip().lower()
                 if confirm == 'y':
                     trainer = EurekaTrainingManager(
                         base_dir=BASE_DIR,
@@ -78,25 +73,25 @@ def main():
                     )
                     trainer.run_training_session()
                 else:
-                    print("❌ Annulé")
+                    print("Cancelled")
                     
             except ValueError:
-                print("❌ Valeurs invalides")
+                print("Invalid values")
                 
         elif choice == "5":
-            print("\n📊 Lancement du monitoring...")
+            print("\nLaunching monitoring...")
             subprocess.run([sys.executable, "training_monitor.py"])
             
         elif choice == "6":
-            print("\n🔍 Guide d'entraînement:")
+            print("\nTraining guide:")
             guide_file = Path(BASE_DIR) / "TRAINING_GUIDE.md"
             if guide_file.exists():
                 subprocess.run(["notepad", str(guide_file)], shell=True)
             else:
-                print("❌ Guide non trouvé")
+                print("Guide not found")
                 
         else:
-            print("❌ Option invalide")
+            print("Invalid option")
             
     except KeyboardInterrupt:
         print("\n👋 Programme interrompu par l'utilisateur")
@@ -106,10 +101,8 @@ def main():
         traceback.print_exc()
 
 def check_prerequisites():
-    """Vérifie les prérequis avant de lancer l'entraînement"""
-    print("🔍 Vérification des prérequis...")
+    print("Checking prerequisites...")
     
-    # Vérifier Ollama
     ollama_paths = [
         "ollama",
         r"C:\Users\antoi\AppData\Local\Programs\Ollama\ollama.exe"
@@ -121,11 +114,11 @@ def check_prerequisites():
             result = subprocess.run([ollama_path, "list"], capture_output=True, text=True)
             if result.returncode == 0:
                 if "llama3.1:8b" in result.stdout:
-                    print("✅ Ollama et llama3.1:8b disponibles")
+                    print("Ollama and llama3.1:8b available")
                     ollama_found = True
                     break
                 else:
-                    print("⚠️ llama3.1:8b non trouvé, tentative de pull...")
+                    print("llama3.1:8b not found, attempting to pull...")
                     subprocess.run([ollama_path, "pull", "llama3.1:8b"])
                     ollama_found = True
                     break
@@ -133,31 +126,30 @@ def check_prerequisites():
             continue
     
     if not ollama_found:
-        print("❌ Ollama non installé ou non disponible")
+        print("Ollama not installed or not available")
         return False
     
-    # Vérifier les packages Python
     required_packages = ["stable_baselines3", "gymnasium", "hydra"]
     missing_packages = []
     
     for package in required_packages:
         try:
             __import__(package.replace("-", "_"))
-            print(f"✅ {package}")
+            print(f"{package} available")
         except ImportError:
             missing_packages.append(package)
-            print(f"❌ {package} manquant")
+            print(f"{package} missing")
     
     if missing_packages:
-        print(f"\n📦 Installation des packages manquants: {', '.join(missing_packages)}")
+        print(f"\nInstalling missing packages: {', '.join(missing_packages)}")
         subprocess.run([sys.executable, "-m", "pip", "install"] + missing_packages)
     
-    print("✅ Vérification terminée")
+    print("Verification completed")
     return True
 
 if __name__ == "__main__":
     if check_prerequisites():
         main()
     else:
-        print("❌ Prérequis non satisfaits")
+        print("Prerequisites not satisfied")
         sys.exit(1)
