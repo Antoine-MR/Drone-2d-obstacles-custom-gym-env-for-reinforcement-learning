@@ -6,8 +6,10 @@ import signal
 import subprocess
 import shutil
 import logging
+import numpy as np
 from datetime import datetime
 from pathlib import Path
+from gymnasium import spaces
 
 class EurekaTrainingManager:
     def __init__(self, base_dir, iterations=5, timesteps_per_iteration=50000):
@@ -106,9 +108,15 @@ class EurekaTrainingManager:
     def save_reward_function(self, iteration):
         eureka_dir = self.base_dir / "Eureka_for_carracing-master" / "Eureka_for_carracing-master"
         
-        reward_files = list(eureka_dir.glob("**/reward_iter*.py"))
-        if reward_files:
-            latest_reward = max(reward_files, key=lambda x: x.stat().st_mtime)
+        # Chercher les fichiers générés par Eureka (pattern: env_iter*_response*.py)
+        reward_files = list(eureka_dir.glob("**/env_iter*_response*.py"))
+        
+        # Filtrer pour garder les fichiers récents (dernière heure)
+        import time
+        recent_files = [f for f in reward_files if (time.time() - f.stat().st_mtime) < 3600]
+        
+        if recent_files:
+            latest_reward = max(recent_files, key=lambda x: x.stat().st_mtime)
             
             reward_dir = self.session_dir / "reward_functions"
             reward_dir.mkdir(exist_ok=True)
@@ -116,10 +124,13 @@ class EurekaTrainingManager:
             dest_file = reward_dir / f"reward_iter{iteration}.py"
             shutil.copy2(latest_reward, dest_file)
             
-            print(f"Reward function saved: {dest_file}")
+            print(f"✓ Reward function saved: {dest_file}")
+            print(f"  Source: {latest_reward.name}")
             return str(dest_file)
         else:
-            print("No reward function file found")
+            print("⚠️  No reward function file found")
+            print(f"  Searched in: {eureka_dir}")
+            print(f"  Pattern: env_iter*_response*.py")
             return None
             
     def update_environment_reward(self, reward_file_path):
@@ -244,8 +255,11 @@ class EurekaTrainingManager:
                 
                 env = make_vec_env(make_env, n_envs=self.config['training']['n_envs'])
                 
+                # Use MultiInputPolicy for dict observation spaces
+                policy_type = "MultiInputPolicy" if isinstance(env.observation_space, spaces.Dict) else "MlpPolicy"
+                
                 model = PPO(
-                    "MlpPolicy", 
+                    policy_type, 
                     env, 
                     learning_rate=self.config['training']['learning_rate'],
                     batch_size=self.config['training']['batch_size'],
@@ -389,14 +403,61 @@ class EurekaTrainingManager:
                 self.results['iterations'].append(iteration_result)
                 self.save_results()
                 
-                print(f"Iteration {iteration} completed successfully!")
+                # Afficher le résumé de l'itération
+                print("\n" + "=" * 60)
+                print(f"ITERATION {iteration}/{self.iterations} - RÉSUMÉ")
+                print("=" * 60)
+                print(f"Durée: {iteration_result['duration']:.2f} secondes")
+                print(f"Eureka: {'✓ Succès' if iteration_result['eureka_success'] else '✗ Échec'}")
+                print(f"Training: {'✓ Succès' if iteration_result['training_success'] else '✗ Échec'}")
+                
+                if iteration_result['evaluation_results']:
+                    eval_res = iteration_result['evaluation_results']
+                    print("\n📊 RÉSULTATS D'ÉVALUATION:")
+                    print(f"  • Récompense moyenne: {eval_res['mean_reward']:.2f} ± {eval_res['std_reward']:.2f}")
+                    print(f"  • Récompense min: {eval_res['min_reward']:.2f}")
+                    print(f"  • Récompense max: {eval_res['max_reward']:.2f}")
+                    print(f"  • Nombre d'épisodes: {len(eval_res['episode_rewards'])}")
+                else:
+                    print("\n⚠️  Pas de résultats d'évaluation disponibles")
+                
+                print("=" * 60 + "\n")
                 
             self.results['end_time'] = datetime.now().isoformat()
             self.results['status'] = 'completed' if not self.interrupted else 'interrupted'
             self.save_results()
             
-            print(f"\nTRAINING SESSION COMPLETED!")
-            print(f"All results saved in: {self.session_dir}")
+            # Afficher le résumé final
+            print("\n" + "=" * 60)
+            print("🎉 SESSION D'ENTRAÎNEMENT TERMINÉE")
+            print("=" * 60)
+            print(f"Statut: {self.results['status']}")
+            print(f"Session ID: {self.session_id}")
+            print(f"Dossier: {self.session_dir}")
+            print(f"\n📈 RÉSUMÉ DES ITÉRATIONS:")
+            
+            successful_iterations = []
+            for iter_res in self.results['iterations']:
+                iter_num = iter_res['iteration']
+                success = "✓" if iter_res['training_success'] else "✗"
+                
+                if iter_res['evaluation_results']:
+                    mean_reward = iter_res['evaluation_results']['mean_reward']
+                    successful_iterations.append((iter_num, mean_reward))
+                    print(f"  Iteration {iter_num}: {success} Récompense = {mean_reward:.2f}")
+                else:
+                    print(f"  Iteration {iter_num}: {success} Pas de résultats")
+            
+            if successful_iterations:
+                print(f"\n🏆 MEILLEURE ITÉRATION:")
+                best_iter, best_reward = max(successful_iterations, key=lambda x: x[1])
+                print(f"  • Itération #{best_iter}")
+                print(f"  • Récompense moyenne: {best_reward:.2f}")
+                print(f"  • Modèle sauvegardé: models/model_iter{best_iter}_final.zip")
+            
+            print("\n" + "=" * 60)
+            print(f"Tous les résultats sauvegardés dans:\n  {self.session_dir}")
+            print("=" * 60)
             
         except Exception as e:
             self.logger.error(f"Training session failed: {e}")
@@ -408,8 +469,24 @@ class EurekaTrainingManager:
             
     def save_results(self):
         results_file = self.session_dir / "training_summary.json"
+        
+        # Convertir les types numpy en types Python natifs pour JSON
+        def convert_numpy_types(obj):
+            if isinstance(obj, dict):
+                return {key: convert_numpy_types(value) for key, value in obj.items()}
+            elif isinstance(obj, list):
+                return [convert_numpy_types(item) for item in obj]
+            elif hasattr(obj, 'item'):  # numpy scalar
+                return obj.item()
+            elif isinstance(obj, np.ndarray):
+                return obj.tolist()
+            else:
+                return obj
+        
+        results_to_save = convert_numpy_types(self.results)
+        
         with open(results_file, 'w') as f:
-            json.dump(self.results, f, indent=2)
+            json.dump(results_to_save, f, indent=2)
         print(f"Training summary saved: {results_file}")
 
 def main():

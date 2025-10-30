@@ -20,19 +20,18 @@ class Drone2DCustom(Drone2dEnv):
                          change_target=change_target, initial_throw=initial_throw)
 
     def step(self, action):
-        obs, _, done, info = super().step(action)
+        obs, _, done, truncated, info = super().step(action)
         
         terminated = done
-        truncated = False
         step_reward = compute_reward(self, action, terminated, truncated, obs)
 
-        return obs, step_reward, terminated, info
+        return obs, step_reward, terminated, truncated, info
 
     def reset(self, seed=None, options=None):
         if seed is not None:
             self.seed(seed)  # type: ignore
         obs, info = super().reset()
-        return obs
+        return obs, info
 
 
 def create_env():
@@ -47,208 +46,291 @@ def create_env():
     )
 
 
-def compute_reward(self, action, truncated: bool, terminated: bool, obs):
+def compute_reward(self, action, terminated: bool, truncated: bool, obs):
+    """
+    Fonction de recompense de base compatible avec le format dict
+    Cette fonction sera remplacee par Eureka pendant l'entrainement
+    """
     velocity_x, velocity_y = obs['velocity'][0], obs['velocity'][1]
-    angular_velocity = obs['angular_velocity']
-    angle = obs['angle']
+    angular_velocity = obs['angular_velocity'][0]
+    angle = obs['angle'][0]
     distance_x, distance_y = obs['target_distance'][0], obs['target_distance'][1]
     pos_x, pos_y = obs['position'][0], obs['position'][1]
 
     # Reward for reaching the target position
     target_reward = 2.0 / (np.abs(distance_x) + np.abs(distance_y) + 0.5)
 
-    # Penalty for exceeding maximum velocity or angular velocity
-    max_velocity = 50.0
-    max_angular_velocity = 10.0
-    velocity_penalty = -1.0 * max(np.abs(velocity_x), np.abs(velocity_y)) / max_velocity
-    angular_velocity_penalty = -1.0 * abs(angular_velocity) / max_angular_velocity
+    # Penalty for high velocity
+    velocity_penalty = -0.01 * (np.abs(velocity_x) + np.abs(velocity_y))
+    
+    # Penalty for high angular velocity
+    angular_penalty = -0.01 * np.abs(angular_velocity)
 
-    # Reward for maintaining stability (angle close to zero)
-    angle_reward = 10.0 * (1.0 - abs(angle) / 180.0)
+    # Reward for maintaining stable angle (close to zero)
+    angle_reward = 1.0 * (1.0 - np.abs(angle))
 
-    # Avoid obstacles (distance between drone and obstacle is greater than a certain threshold)
-    obstacle_distance_x, obstacle_distance_y = obs['obstacle_distance'][0], obs['obstacle_distance'][1]
-    max_obstacle_distance = 5.0
-    if np.abs(obstacle_distance_x) > max_obstacle_distance or np.abs(obstacle_distance_y) > max_obstacle_distance:
-        obstacle_reward = -10.0
-    else:
-        obstacle_reward = 0.0
-
-    # Penalize for going outside the boundaries
+    # Penalize for being out of bounds
     boundary_penalty = 0.0
-    if np.abs(pos_x) > 100.0 or np.abs(pos_y) > 100.0:
-        boundary_penalty = -5.0
+    if np.abs(pos_x) >= 0.9 or np.abs(pos_y) >= 0.9:
+        boundary_penalty = -10.0
 
-    # Penalize for falling down
-    height_penalty = 0.0
-    initial_height = obs['initial_position'][1]
-    current_height = pos_y
-    if current_height < initial_height:
-        height_penalty = -10.0
+    # Terminal penalty
+    terminal_penalty = -10.0 if terminated else 0.0
 
-    # Combine rewards with appropriate weights
-    reward = (target_reward + angle_reward + velocity_penalty + angular_velocity_penalty +
-              obstacle_reward + boundary_penalty + height_penalty)
+    # Combine rewards
+    reward = (target_reward + velocity_penalty + angular_penalty + 
+              angle_reward + boundary_penalty + terminal_penalty)
 
-    return truncated, terminated, float(reward)
+    return float(reward)
 
+    """
+    Fonction de recompense de base compatible avec le format dict
+    Cette fonction sera remplacee par Eureka pendant l'entrainement
+    """
     velocity_x, velocity_y = obs['velocity'][0], obs['velocity'][1]
-    angular_velocity = obs['angular_velocity']
-    angle = obs['angle']
+    angular_velocity = obs['angular_velocity'][0]
+    angle = obs['angle'][0]
     distance_x, distance_y = obs['target_distance'][0], obs['target_distance'][1]
     pos_x, pos_y = obs['position'][0], obs['position'][1]
 
     # Reward for reaching the target position
     target_reward = 2.0 / (np.abs(distance_x) + np.abs(distance_y) + 0.5)
 
-    # Penalty for exceeding maximum velocity or angular velocity
-    max_velocity = 50.0
-    max_angular_velocity = 10.0
-    velocity_penalty = -1.0 * max(np.abs(velocity_x), np.abs(velocity_y)) / max_velocity
-    angular_velocity_penalty = -1.0 * abs(angular_velocity) / max_angular_velocity
+    # Penalty for high velocity
+    velocity_penalty = -0.01 * (np.abs(velocity_x) + np.abs(velocity_y))
+    
+    # Penalty for high angular velocity
+    angular_penalty = -0.01 * np.abs(angular_velocity)
 
-    # Reward for maintaining stability (angle close to zero)
-    angle_reward = 10.0 * (1.0 - abs(angle) / 180.0)
+    # Reward for maintaining stable angle (close to zero)
+    angle_reward = 1.0 * (1.0 - np.abs(angle))
 
-    # Avoid obstacles (distance between drone and obstacle is greater than a certain threshold)
-    obstacle_distance_x, obstacle_distance_y = obs['obstacle_distance'][0], obs['obstacle_distance'][1]
-    max_obstacle_distance = 5.0
-    if np.abs(obstacle_distance_x) > max_obstacle_distance or np.abs(obstacle_distance_y) > max_obstacle_distance:
-        obstacle_reward = -10.0
-    else:
-        obstacle_reward = 0.0
-
-    # Penalize for going outside the boundaries
+    # Penalize for being out of bounds
     boundary_penalty = 0.0
-    if np.abs(pos_x) > 100.0 or np.abs(pos_y) > 100.0:
-        boundary_penalty = -5.0
+    if np.abs(pos_x) >= 0.9 or np.abs(pos_y) >= 0.9:
+        boundary_penalty = -10.0
 
-    # Penalize for falling down
-    height_penalty = 0.0
-    initial_height = obs['initial_position'][1]
-    current_height = pos_y
-    if current_height < initial_height:
-        height_penalty = -10.0
+    # Terminal penalty
+    terminal_penalty = -10.0 if terminated else 0.0
 
-    # Combine rewards with appropriate weights
-    reward = (target_reward + angle_reward + velocity_penalty + angular_velocity_penalty +
-              obstacle_reward + boundary_penalty + height_penalty)
+    # Combine rewards
+    reward = (target_reward + velocity_penalty + angular_penalty + 
+              angle_reward + boundary_penalty + terminal_penalty)
 
-    return truncated, terminated, float(reward)
+    return float(reward)
 
+    """
+    Fonction de recompense de base compatible avec le format dict
+    Cette fonction sera remplacee par Eureka pendant l'entrainement
+    """
     velocity_x, velocity_y = obs['velocity'][0], obs['velocity'][1]
-    angular_velocity = obs['angular_velocity']
-    angle = obs['angle']
+    angular_velocity = obs['angular_velocity'][0]
+    angle = obs['angle'][0]
     distance_x, distance_y = obs['target_distance'][0], obs['target_distance'][1]
     pos_x, pos_y = obs['position'][0], obs['position'][1]
 
     # Reward for reaching the target position
     target_reward = 2.0 / (np.abs(distance_x) + np.abs(distance_y) + 0.5)
 
-    # Penalty for exceeding maximum velocity or angular velocity
-    max_velocity = 50.0
-    max_angular_velocity = 10.0
-    velocity_penalty = -1.0 * max(np.abs(velocity_x), np.abs(velocity_y)) / max_velocity
-    angular_velocity_penalty = -1.0 * abs(angular_velocity) / max_angular_velocity
+    # Penalty for high velocity
+    velocity_penalty = -0.01 * (np.abs(velocity_x) + np.abs(velocity_y))
+    
+    # Penalty for high angular velocity
+    angular_penalty = -0.01 * np.abs(angular_velocity)
 
-    # Reward for maintaining stability (angle close to zero)
-    angle_reward = 10.0 * (1.0 - abs(angle) / 180.0)
+    # Reward for maintaining stable angle (close to zero)
+    angle_reward = 1.0 * (1.0 - np.abs(angle))
 
-    # Avoid obstacles (distance between drone and obstacle is greater than a certain threshold)
-    obstacle_distance_x, obstacle_distance_y = obs['obstacle_distance'][0], obs['obstacle_distance'][1]
-    max_obstacle_distance = 5.0
-    if np.abs(obstacle_distance_x) > max_obstacle_distance or np.abs(obstacle_distance_y) > max_obstacle_distance:
-        obstacle_reward = -10.0
-    else:
-        obstacle_reward = 0.0
-
-    # Penalize for going outside the boundaries
+    # Penalize for being out of bounds
     boundary_penalty = 0.0
-    if np.abs(pos_x) > 100.0 or np.abs(pos_y) > 100.0:
-        boundary_penalty = -5.0
+    if np.abs(pos_x) >= 0.9 or np.abs(pos_y) >= 0.9:
+        boundary_penalty = -10.0
 
-    # Penalize for falling down
-    height_penalty = 0.0
-    initial_height = obs['initial_position'][1]
-    current_height = pos_y
-    if current_height < initial_height:
-        height_penalty = -10.0
+    # Terminal penalty
+    terminal_penalty = -10.0 if terminated else 0.0
 
-    # Combine rewards with appropriate weights
-    reward = (target_reward + angle_reward + velocity_penalty + angular_velocity_penalty +
-              obstacle_reward + boundary_penalty + height_penalty)
+    # Combine rewards
+    reward = (target_reward + velocity_penalty + angular_penalty + 
+              angle_reward + boundary_penalty + terminal_penalty)
 
-    return truncated, terminated, float(reward)
+    return float(reward)
 
+    """
+    Fonction de recompense de base compatible avec le format dict
+    Cette fonction sera remplacee par Eureka pendant l'entrainement
+    """
     velocity_x, velocity_y = obs['velocity'][0], obs['velocity'][1]
-    angular_velocity = obs['angular_velocity']
-    angle = obs['angle']
+    angular_velocity = obs['angular_velocity'][0]
+    angle = obs['angle'][0]
     distance_x, distance_y = obs['target_distance'][0], obs['target_distance'][1]
     pos_x, pos_y = obs['position'][0], obs['position'][1]
 
     # Reward for reaching the target position
     target_reward = 2.0 / (np.abs(distance_x) + np.abs(distance_y) + 0.5)
 
-    # Penalty for exceeding maximum velocity or angular velocity
-    max_velocity = 50.0
-    max_angular_velocity = 10.0
-    velocity_penalty = -1.0 * max(np.abs(velocity_x), np.abs(velocity_y)) / max_velocity
-    angular_velocity_penalty = -1.0 * abs(angular_velocity) / max_angular_velocity
+    # Penalty for high velocity
+    velocity_penalty = -0.01 * (np.abs(velocity_x) + np.abs(velocity_y))
+    
+    # Penalty for high angular velocity
+    angular_penalty = -0.01 * np.abs(angular_velocity)
 
-    # Reward for maintaining stability (angle close to zero)
-    angle_reward = 10.0 * (1.0 - abs(angle) / 180.0)
+    # Reward for maintaining stable angle (close to zero)
+    angle_reward = 1.0 * (1.0 - np.abs(angle))
 
-    # Avoid obstacles (distance between drone and obstacle is greater than a certain threshold)
-    obstacle_distance_x, obstacle_distance_y = obs['obstacle_distance'][0], obs['obstacle_distance'][1]
-    max_obstacle_distance = 5.0
-    if np.abs(obstacle_distance_x) > max_obstacle_distance or np.abs(obstacle_distance_y) > max_obstacle_distance:
-        obstacle_reward = -10.0
-    else:
-        obstacle_reward = 0.0
-
-    # Penalize for going outside the boundaries
+    # Penalize for being out of bounds
     boundary_penalty = 0.0
-    if np.abs(pos_x) > 100.0 or np.abs(pos_y) > 100.0:
-        boundary_penalty = -5.0
+    if np.abs(pos_x) >= 0.9 or np.abs(pos_y) >= 0.9:
+        boundary_penalty = -10.0
 
-    # Penalize for falling down
-    height_penalty = 0.0
-    initial_height = obs['initial_position'][1]
-    current_height = pos_y
-    if current_height < initial_height:
-        height_penalty = -10.0
+    # Terminal penalty
+    terminal_penalty = -10.0 if terminated else 0.0
 
-    # Combine rewards with appropriate weights
-    reward = (target_reward + angle_reward + velocity_penalty + angular_velocity_penalty +
-              obstacle_reward + boundary_penalty + height_penalty)
+    # Combine rewards
+    reward = (target_reward + velocity_penalty + angular_penalty + 
+              angle_reward + boundary_penalty + terminal_penalty)
 
-    return truncated, terminated, float(reward)
+    return float(reward)
 
+    """
+    Fonction de recompense de base compatible avec le format dict
+    Cette fonction sera remplacee par Eureka pendant l'entrainement
+    """
     velocity_x, velocity_y = obs['velocity'][0], obs['velocity'][1]
-    angular_velocity = obs['angular_velocity']
-    angle = obs['angle']
+    angular_velocity = obs['angular_velocity'][0]
+    angle = obs['angle'][0]
     distance_x, distance_y = obs['target_distance'][0], obs['target_distance'][1]
     pos_x, pos_y = obs['position'][0], obs['position'][1]
 
     # Reward for reaching the target position
     target_reward = 2.0 / (np.abs(distance_x) + np.abs(distance_y) + 0.5)
 
-    # Penalty for exceeding maximum velocity or angular velocity
-    velocity_penalty = -1.0 * max(np.abs(velocity_x), np.abs(velocity_y)) / 100.0
-    angular_velocity_penalty = -1.0 * abs(angular_velocity) / 2.0
+    # Penalty for high velocity
+    velocity_penalty = -0.01 * (np.abs(velocity_x) + np.abs(velocity_y))
+    
+    # Penalty for high angular velocity
+    angular_penalty = -0.01 * np.abs(angular_velocity)
 
-    # Reward for maintaining stability (angle close to zero)
-    angle_reward = 10.0 * (1.0 - abs(angle) / 180.0)
+    # Reward for maintaining stable angle (close to zero)
+    angle_reward = 1.0 * (1.0 - np.abs(angle))
 
-    # Avoid obstacles (distance between drone and obstacle is greater than a certain threshold)
-    distance_x, distance_y = obs['obstacle_distance'][0], obs['obstacle_distance'][1]
-    if np.abs(distance_x) > 5.0 or np.abs(distance_y) > 5.0:
-        obstacle_reward = -10.0
-    else:
-        obstacle_reward = 0.0
+    # Penalize for being out of bounds
+    boundary_penalty = 0.0
+    if np.abs(pos_x) >= 0.9 or np.abs(pos_y) >= 0.9:
+        boundary_penalty = -10.0
 
-    # Combine rewards with appropriate weights
-    reward = (target_reward + angle_reward + velocity_penalty + angular_velocity_penalty +
-              obstacle_reward)
+    # Terminal penalty
+    terminal_penalty = -10.0 if terminated else 0.0
 
-    return truncated, terminated, float(reward)
+    # Combine rewards
+    reward = (target_reward + velocity_penalty + angular_penalty + 
+              angle_reward + boundary_penalty + terminal_penalty)
+
+    return float(reward)
+
+    """
+    Fonction de recompense de base compatible avec le format dict
+    Cette fonction sera remplacee par Eureka pendant l'entrainement
+    """
+    velocity_x, velocity_y = obs['velocity'][0], obs['velocity'][1]
+    angular_velocity = obs['angular_velocity'][0]
+    angle = obs['angle'][0]
+    distance_x, distance_y = obs['target_distance'][0], obs['target_distance'][1]
+    pos_x, pos_y = obs['position'][0], obs['position'][1]
+
+    # Reward for reaching the target position
+    target_reward = 2.0 / (np.abs(distance_x) + np.abs(distance_y) + 0.5)
+
+    # Penalty for high velocity
+    velocity_penalty = -0.01 * (np.abs(velocity_x) + np.abs(velocity_y))
+    
+    # Penalty for high angular velocity
+    angular_penalty = -0.01 * np.abs(angular_velocity)
+
+    # Reward for maintaining stable angle (close to zero)
+    angle_reward = 1.0 * (1.0 - np.abs(angle))
+
+    # Penalize for being out of bounds
+    boundary_penalty = 0.0
+    if np.abs(pos_x) >= 0.9 or np.abs(pos_y) >= 0.9:
+        boundary_penalty = -10.0
+
+    # Terminal penalty
+    terminal_penalty = -10.0 if terminated else 0.0
+
+    # Combine rewards
+    reward = (target_reward + velocity_penalty + angular_penalty + 
+              angle_reward + boundary_penalty + terminal_penalty)
+
+    return float(reward)
+
+    """
+    Fonction de recompense de base compatible avec le format dict
+    Cette fonction sera remplacee par Eureka pendant l'entrainement
+    """
+    velocity_x, velocity_y = obs['velocity'][0], obs['velocity'][1]
+    angular_velocity = obs['angular_velocity'][0]
+    angle = obs['angle'][0]
+    distance_x, distance_y = obs['target_distance'][0], obs['target_distance'][1]
+    pos_x, pos_y = obs['position'][0], obs['position'][1]
+
+    # Reward for reaching the target position
+    target_reward = 2.0 / (np.abs(distance_x) + np.abs(distance_y) + 0.5)
+
+    # Penalty for high velocity
+    velocity_penalty = -0.01 * (np.abs(velocity_x) + np.abs(velocity_y))
+    
+    # Penalty for high angular velocity
+    angular_penalty = -0.01 * np.abs(angular_velocity)
+
+    # Reward for maintaining stable angle (close to zero)
+    angle_reward = 1.0 * (1.0 - np.abs(angle))
+
+    # Penalize for being out of bounds
+    boundary_penalty = 0.0
+    if np.abs(pos_x) >= 0.9 or np.abs(pos_y) >= 0.9:
+        boundary_penalty = -10.0
+
+    # Terminal penalty
+    terminal_penalty = -10.0 if terminated else 0.0
+
+    # Combine rewards
+    reward = (target_reward + velocity_penalty + angular_penalty + 
+              angle_reward + boundary_penalty + terminal_penalty)
+
+    return float(reward)
+
+    """
+    Fonction de recompense de base compatible avec le format dict
+    Cette fonction sera remplacee par Eureka pendant l'entrainement
+    """
+    velocity_x, velocity_y = obs['velocity'][0], obs['velocity'][1]
+    angular_velocity = obs['angular_velocity'][0]
+    angle = obs['angle'][0]
+    distance_x, distance_y = obs['target_distance'][0], obs['target_distance'][1]
+    pos_x, pos_y = obs['position'][0], obs['position'][1]
+
+    # Reward for reaching the target position
+    target_reward = 2.0 / (np.abs(distance_x) + np.abs(distance_y) + 0.5)
+
+    # Penalty for high velocity
+    velocity_penalty = -0.01 * (np.abs(velocity_x) + np.abs(velocity_y))
+    
+    # Penalty for high angular velocity
+    angular_penalty = -0.01 * np.abs(angular_velocity)
+
+    # Reward for maintaining stable angle (close to zero)
+    angle_reward = 1.0 * (1.0 - np.abs(angle))
+
+    # Penalize for being out of bounds
+    boundary_penalty = 0.0
+    if np.abs(pos_x) >= 0.9 or np.abs(pos_y) >= 0.9:
+        boundary_penalty = -10.0
+
+    # Terminal penalty
+    terminal_penalty = -10.0 if terminated else 0.0
+
+    # Combine rewards
+    reward = (target_reward + velocity_penalty + angular_penalty + 
+              angle_reward + boundary_penalty + terminal_penalty)
+
+    return float(reward)
