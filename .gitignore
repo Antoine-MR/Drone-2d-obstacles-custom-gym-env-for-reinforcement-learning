@@ -17,6 +17,27 @@ outputs/
 results/
 logs/
 tensorboard_logs/
+models/
+checkpoints/
+
+# Training sessions (garder seulement les importantes)
+training_sessions/archived_sessions/
+**/training_sessions/eureka_session_*/
+**/outputs/
+**/models/
+**/results/
+
+# Eureka outputs
+Eureka_for_carracing-master/**/outputs/
+Eureka_for_carracing-master/**/results/
+Eureka_for_carracing-master/**/models/
+Eureka_for_carracing-master/**/training_sessions/
+
+# Temporary files
+*.tmp
+*.temp
+temp.*
+test_*.py
 
 # Weights & Biases
 wandb/

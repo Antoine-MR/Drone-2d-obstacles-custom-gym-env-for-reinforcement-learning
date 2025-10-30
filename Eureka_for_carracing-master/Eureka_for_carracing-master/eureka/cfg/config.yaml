@@ -9,9 +9,9 @@ hydra:
     chdir: True
 
 # LLM parameters
-model: llama3.1  # LLM model (other options are gpt-4, gpt-4-0613, gpt-3.5-turbo-16k-0613)
+model: llama3.1:8b  # LLM model (other options are gpt-4, gpt-4-0613, gpt-3.5-turbo-16k-0613, deepseek-r1:8b)
 temperature: 1.0
-suffix: lama  # suffix for generated files (indicates LLM model)
+suffix: llama  # suffix for generated files (indicates LLM model)
 
 # Eureka parameters
 iteration: 10 # how many iterations of Eureka to run

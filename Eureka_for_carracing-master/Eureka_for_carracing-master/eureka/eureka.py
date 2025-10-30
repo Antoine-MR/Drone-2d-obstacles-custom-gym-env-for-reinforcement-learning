@@ -293,7 +293,15 @@ def main(cfg):
             if "def get_reward(self, action, truncated, terminated, step_reward) -> Tuple[bool, bool, float]:" in task_code_string:
                 task_code_string_iter = task_code_string.replace("def get_reward(self, action, truncated, terminated, step_reward) -> Tuple[bool, bool, float]:",
                                                                  "def get_reward(self, action, truncated, terminated, step_reward) -> Tuple[bool, bool, float]:\n" + reward_signature)
+            elif "def compute_reward(" in task_code_string and ") -> float:" in task_code_string:
+                # Find the complete function signature including type annotations
+                start_idx = task_code_string.find("def compute_reward(")
+                end_idx = task_code_string.find(") -> float:", start_idx) + len(") -> float:")
+                original_signature = task_code_string[start_idx:end_idx]
+                task_code_string_iter = task_code_string.replace(original_signature, original_signature + "\n" + reward_signature)
             else:
+                logging.info(f"DEBUG: task_code_string content:\n{task_code_string[:500]}...")
+                logging.info(f"DEBUG: Looking for compute_reward signature but not found")
                 raise NotImplementedError
 
             # Save the new environment code when the output contains valid code string!

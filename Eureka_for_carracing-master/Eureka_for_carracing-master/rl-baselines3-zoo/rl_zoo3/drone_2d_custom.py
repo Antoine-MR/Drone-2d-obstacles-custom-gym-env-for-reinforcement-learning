@@ -1,76 +1,74 @@
-from typing import Tuple, Union
-
-import torch
 import numpy as np
-import sys
-import os
-from pymunk import Vec2d
-
-# Ajouter le chemin vers le package du drone
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'drone_2d_custom_gym_env_package'))
-
-import drone_2d_custom_gym_env
-from drone_2d_custom_gym_env.drone_2d_env import Drone2dEnv
-import gymnasium as gym
-
-
-class Drone2DCustom(Drone2dEnv):
-    def __init__(self, render_sim=False, render_path=False, render_shade=False, shade_distance=70,
-                 n_steps=500, n_fall_steps=10, change_target=False, initial_throw=True):
-        # Désactiver le rendu pour l'entraînement Eureka (plus rapide)
-        super().__init__(render_sim=render_sim, render_path=render_path, render_shade=render_shade, 
-                         shade_distance=shade_distance, n_steps=n_steps, n_fall_steps=n_fall_steps,
-                         change_target=change_target, initial_throw=initial_throw)
-
-    def step(self, action):
-        # Call parent step method to get the original behavior
-        obs, _, done, info = super().step(action)
-        
-        # Replace the original reward with Eureka's optimized reward
-        terminated = done
-        truncated = False  # L'environnement original ne distingue pas terminated/truncated
-        step_reward = self.get_reward(action, terminated, truncated, obs)
-
-        return obs, step_reward, terminated, info
-
-    def get_reward(self, action, terminated, truncated, obs) -> float:
-        """Reward function that will be optimized by Eureka"""
-        return compute_reward(self, action, terminated, truncated, obs)
+from typing import Tuple, Union
 
 
 def compute_reward(
-        self,
-        action: np.ndarray,
-        terminated: bool,
-        truncated: bool,
-        obs: np.ndarray,
+    env,
+    action: np.ndarray, 
+    terminated: bool,
+    truncated: bool, 
+    obs: np.ndarray
 ) -> float:
-    """Computes reward for Drone2D environment."""
-    
-    # Extract observation components
+        return compute_reward(self, action, truncated, terminated, obs)
     velocity_x, velocity_y = obs[0], obs[1]
-    angular_velocity = obs[2]
+    angular_velocity = obs[2] 
     angle = obs[3]
     distance_x, distance_y = obs[4], obs[5]
     pos_x, pos_y = obs[6], obs[7]
     
-    # Base reward - closer to target is better
     distance_reward = 1.0 / (np.abs(distance_x) + 0.1) + 1.0 / (np.abs(distance_y) + 0.1)
+    stability_penalty = 0.1 * np.abs(angular_velocity) + 0.1 * np.abs(angle)
+    velocity_penalty = 0.05 * (np.abs(velocity_x) + np.abs(velocity_y))
+    action_penalty = 0.01 * (np.abs(action[0]) + np.abs(action[1]))
+    terminal_penalty = 10.0 if terminated else 0.0
     
-    # Stability reward - penalize high angular velocity and extreme angles
-    stability_reward = -0.1 * np.abs(angular_velocity) - 0.1 * np.abs(angle)
-    
-    # Velocity control reward - penalize excessive speeds
-    velocity_penalty = -0.05 * (np.abs(velocity_x) + np.abs(velocity_y))
-    
-    # Action smoothness reward - penalize large actions
-    action_penalty = -0.01 * (np.abs(action[0]) + np.abs(action[1]))
-    
-    # Terminal penalty
-    if terminated:
-        return -10.0
-    
-    # Combine rewards
-    total_reward = distance_reward + stability_reward + velocity_penalty + action_penalty
+    total_reward = distance_reward - stability_penalty - velocity_penalty - action_penalty - terminal_penalty
     
     return total_reward
+def compute_reward(self, action: Union[np.ndarray, int], truncated: bool, terminated: bool, obs) -> Tuple[bool, bool, float]:
+    velocity_x, velocity_y = obs['velocity'][0], obs['velocity'][1]
+    angular_velocity = obs['angular_velocity']
+    angle = obs['angle']
+    distance_x, distance_y = obs['target_distance'][0], obs['target_distance'][1]
+    pos_x, pos_y = obs['position'][0], obs['position'][1]
+
+    # Reward for reaching the target position
+    target_reward = 2.0 / (np.abs(distance_x) + np.abs(distance_y) + 0.5)
+
+    # Penalty for exceeding maximum velocity or angular velocity
+    max_velocity = 50.0
+    max_angular_velocity = 10.0
+    if action == "stop":
+        velocity_penalty = -1.0 * max(np.abs(velocity_x), np.abs(velocity_y)) / max_velocity
+        angular_velocity_penalty = -1.0 * abs(angular_velocity) / max_angular_velocity
+    else:
+        velocity_penalty = 1.0 * max(np.abs(velocity_x), np.abs(velocity_y)) / max_velocity
+        angular_velocity_penalty = 1.0 * abs(angular_velocity) / max_angular_velocity
+
+    # Reward for maintaining stability (angle close to zero)
+    angle_reward = 10.0 * (1.0 - abs(angle) / 180.0)
+
+    # Avoid obstacles (distance between drone and obstacle is greater than a certain threshold)
+    max_obstacle_distance = 5.0
+    if np.abs(obs['obstacle_distance'][0]) > max_obstacle_distance or np.abs(obs['obstacle_distance'][1]) > max_obstacle_distance:
+        obstacle_reward = -10.0
+    else:
+        obstacle_reward = 0.0
+
+    # Penalize for going outside the boundaries
+    boundary_penalty = 0.0
+    if np.abs(pos_x) > 100.0 or np.abs(pos_y) > 100.0:
+        boundary_penalty = -5.0
+
+    # Penalize for falling down
+    height_penalty = 0.0
+    initial_height = obs['initial_position'][1]
+    current_height = pos_y
+    if current_height < initial_height:
+        height_penalty = -10.0
+
+    # Combine rewards with appropriate weights
+    reward = (target_reward + angle_reward + velocity_penalty + angular_velocity_penalty +
+              obstacle_reward + boundary_penalty + height_penalty)
+
+    return truncated, terminated, float(reward)
