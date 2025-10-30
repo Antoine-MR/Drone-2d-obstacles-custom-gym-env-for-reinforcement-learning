@@ -1,5 +1,6 @@
 from drone_2d_custom_gym_env.Drone import *
 from drone_2d_custom_gym_env.event_handler import *
+from drone_2d_custom_gym_env.Obstacle import ObstacleManager
 
 import gymnasium as gym
 from gymnasium import spaces
@@ -21,7 +22,8 @@ class Drone2dEnv(gym.Env):
     """
 
     def __init__(self, render_sim=False, render_path=True, render_shade=True, shade_distance=70,
-                 n_steps=500, n_fall_steps=10, change_target=False, initial_throw=True):
+                 n_steps=500, n_fall_steps=10, change_target=False, initial_throw=True, 
+                 use_obstacles=True, num_obstacles=3, fixed_map=False):
 
         self.render_sim = render_sim
         self.render_path = render_path
@@ -33,8 +35,6 @@ class Drone2dEnv(gym.Env):
             self.drop_path = []
             self.path_drone_shade = []
 
-        self.init_pymunk()
-
         #Parameters
         self.max_time_steps = n_steps
         self.stabilisation_delay = n_fall_steps
@@ -42,6 +42,11 @@ class Drone2dEnv(gym.Env):
         self.froce_scale = 1000
         self.initial_throw = initial_throw
         self.change_target = change_target
+        self.use_obstacles = use_obstacles
+        self.num_obstacles = num_obstacles
+        self.fixed_map = fixed_map
+
+        self.init_pymunk()
 
         #Initial values
         self.first_step = True
@@ -88,10 +93,34 @@ class Drone2dEnv(gym.Env):
             self.draw_options.flags = pymunk.SpaceDebugDrawOptions.DRAW_SHAPES
             pymunk.pygame_util.positive_y_is_up = True
 
+        # Initialiser les obstacles si demandé
+        if self.use_obstacles:
+            self.obstacle_manager = ObstacleManager(self.space)
+            if self.fixed_map:
+                # Map fixe avec positions prédéfinies
+                self.obstacle_manager.add_fixed_obstacles()
+            else:
+                # Map aléatoire
+                self.obstacle_manager.add_random_obstacles(self.num_obstacles)
+
+        # Position du drone et de la cible
+        if self.fixed_map:
+            # Positions fixes pour la map fixe
+            # Drone démarre à gauche, cible à droite (horizontal)
+            random_x = 150  # À gauche
+            random_y = 400  # Mi-hauteur
+            angle_rand = 0  # Angle droit
+            # Cible fixe à droite
+            self.x_target = 650
+            self.y_target = 400
+        else:
+            # Positions aléatoires (comportement original)
+            random_x = random.uniform(200, 600)
+            random_y = random.uniform(200, 600)
+            angle_rand = random.uniform(-np.pi/4, np.pi/4)
+            # La cible est déjà définie dans __init__ de façon aléatoire
+
         #Generating drone's starting position
-        random_x = random.uniform(200, 600)
-        random_y = random.uniform(200, 600)
-        angle_rand = random.uniform(-np.pi/4, np.pi/4)
         self.drone = Drone(random_x, random_y, angle_rand, 20, 100, 0.2, 0.4, 0.4, self.space)
 
         self.drone_radius = self.drone.drone_radius
@@ -138,6 +167,11 @@ class Drone2dEnv(gym.Env):
         if np.abs(obs[3])==1 or np.abs(obs[6])==1 or np.abs(obs[7])==1:
             self.done = True
             reward = -10
+
+        # Vérifier collision avec obstacles
+        if hasattr(self, 'use_obstacles') and self.use_obstacles and self.obstacle_manager.check_collision_with_drone(self.drone):
+            self.done = True
+            reward = -10  # Même penalty que sortir des limites
 
         #Stops episode, when time is up
         if self.current_time_step == self.max_time_steps:
@@ -228,8 +262,23 @@ class Drone2dEnv(gym.Env):
     def reset(self, seed=None, options=None):
         if seed is not None:
             self.seed(seed)
-        self.__init__(self.render_sim, self.render_path, self.render_shade, self.drone_shade_distance,
-                      self.max_time_steps, self.stabilisation_delay, self.change_target, self.initial_throw)
+        
+        # Sauvegarder les paramètres avant réinitialisation
+        render_sim = self.render_sim
+        render_path = self.render_path
+        render_shade = self.render_shade
+        shade_distance = self.drone_shade_distance
+        max_time_steps = self.max_time_steps
+        stabilisation_delay = self.stabilisation_delay
+        change_target = self.change_target
+        initial_throw = self.initial_throw
+        use_obstacles = self.use_obstacles if hasattr(self, 'use_obstacles') else True
+        num_obstacles = self.num_obstacles if hasattr(self, 'num_obstacles') else 3
+        fixed_map = self.fixed_map if hasattr(self, 'fixed_map') else False
+        
+        self.__init__(render_sim, render_path, render_shade, shade_distance,
+                      max_time_steps, stabilisation_delay, change_target, initial_throw,
+                      use_obstacles, num_obstacles, fixed_map)
         return self.get_observation(), {}
 
     def close(self):
@@ -283,3 +332,11 @@ class Drone2dEnv(gym.Env):
     def change_target_point(self, x, y):
         self.x_target = x
         self.y_target = y
+
+    def update_obstacle_count(self, new_count):
+        """Met à jour le nombre d'obstacles pendant l'entraînement"""
+        if hasattr(self, 'use_obstacles') and self.use_obstacles:
+            self.num_obstacles = new_count
+            if hasattr(self, 'obstacle_manager'):
+                self.obstacle_manager.add_random_obstacles(new_count)
+            print(f"🎯 Obstacles mis à jour: {new_count} obstacles actifs")

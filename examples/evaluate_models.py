@@ -16,7 +16,8 @@ def evaluate_model(model_path, num_episodes=5):
     
     # Créer l'environnement avec rendu pour visualiser
     env = gym.make('drone-2d-custom-v0', render_sim=True, render_path=True, render_shade=True,
-                shade_distance=70, n_steps=500, n_fall_steps=10, change_target=True, initial_throw=True)
+                shade_distance=70, n_steps=500, n_fall_steps=10, change_target=True, initial_throw=True,
+                use_obstacles=True, num_obstacles=3)
     
     try:
         # Charger le modèle
@@ -66,10 +67,12 @@ def main():
     
     # Liste des modèles à tester
     models_to_test = [
-        ("../checkpoint_agent_interrupted_1759758715", "Checkpoint interrompu (25% - 456k étapes)"),
-        ("../final_agent", "Agent final (si disponible)"),
-        ("../checkpoint_agent_step_450000", "Checkpoint 450k étapes"),
-        ("../checkpoint_agent_step_400000", "Checkpoint 400k étapes"),
+        ("final_agent", "Agent final (si disponible)"),
+        ("checkpoint_agent_step_1800000", "Checkpoint final 1.8M étapes"),
+        ("checkpoint_agent_step_1750000", "Checkpoint 1.75M étapes"),
+        ("checkpoint_agent_step_1700000", "Checkpoint 1.7M étapes"),
+        ("checkpoint_agent_step_1650000", "Checkpoint 1.65M étapes"),
+        ("checkpoint_agent_step_1600000", "Checkpoint 1.6M étapes"),
     ]
     
     for model_path, description in models_to_test:
