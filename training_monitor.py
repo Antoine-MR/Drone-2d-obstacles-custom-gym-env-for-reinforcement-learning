@@ -133,7 +133,7 @@ class TrainingMonitor:
                     print(f"    - Duration: {duration_min:.1f} min")
 
 def main():
-    BASE_DIR = r'C:\Users\antoi\Documents\cours\si5\drl\Drone-2d-obstacles-custom-gym-env-for-reinforcement-learning'
+    BASE_DIR = Path(__file__).parent.absolute()
     
     monitor = TrainingMonitor(BASE_DIR)
     

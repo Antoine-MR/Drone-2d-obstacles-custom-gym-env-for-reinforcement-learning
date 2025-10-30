@@ -14,7 +14,7 @@ def main():
     print("EUREKA DRONE TRAINING - MAIN LAUNCHER")
     print("=" * 60)
     
-    BASE_DIR = r'C:\Users\antoi\Documents\cours\si5\drl\Drone-2d-obstacles-custom-gym-env-for-reinforcement-learning'
+    BASE_DIR = Path(__file__).parent.absolute()
     
     print("\nAvailable training options:")
     print("1. Quick test (1 iteration, 5000 timesteps)")
@@ -103,30 +103,23 @@ def main():
 def check_prerequisites():
     print("Checking prerequisites...")
     
-    ollama_paths = [
-        "ollama",
-        r"C:\Users\antoi\AppData\Local\Programs\Ollama\ollama.exe"
-    ]
-    
     ollama_found = False
-    for ollama_path in ollama_paths:
-        try:
-            result = subprocess.run([ollama_path, "list"], capture_output=True, text=True)
-            if result.returncode == 0:
-                if "llama3.1:8b" in result.stdout:
-                    print("Ollama and llama3.1:8b available")
-                    ollama_found = True
-                    break
-                else:
-                    print("llama3.1:8b not found, attempting to pull...")
-                    subprocess.run([ollama_path, "pull", "llama3.1:8b"])
-                    ollama_found = True
-                    break
-        except FileNotFoundError:
-            continue
+    try:
+        result = subprocess.run(["ollama", "list"], capture_output=True, text=True)
+        if result.returncode == 0:
+            if "llama3.1:8b" in result.stdout:
+                print("Ollama and llama3.1:8b available")
+                ollama_found = True
+            else:
+                print("llama3.1:8b not found, attempting to pull...")
+                subprocess.run(["ollama", "pull", "llama3.1:8b"])
+                ollama_found = True
+    except FileNotFoundError:
+        pass
     
     if not ollama_found:
-        print("Ollama not installed or not available")
+        print("Ollama not installed or not available in PATH")
+        print("Please install Ollama and ensure it's in your system PATH")
         return False
     
     required_packages = ["stable_baselines3", "gymnasium", "hydra"]

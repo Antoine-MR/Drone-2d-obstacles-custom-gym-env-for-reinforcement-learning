@@ -415,7 +415,7 @@ class EurekaTrainingManager:
 def main():
     import numpy as np
     
-    BASE_DIR = r"C:\Users\antoi\Documents\cours\si5\drl\Drone-2d-obstacles-custom-gym-env-for-reinforcement-learning"
+    BASE_DIR = Path(__file__).parent.parent.absolute()
     ITERATIONS = 5
     TIMESTEPS_PER_ITERATION = 50000
     
