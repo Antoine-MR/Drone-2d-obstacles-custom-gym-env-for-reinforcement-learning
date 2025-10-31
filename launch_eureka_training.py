@@ -338,6 +338,10 @@ class EurekaTrainingManager:
             
             n_eval_episodes = self.config['checkpoints']['n_eval_episodes']
             episode_rewards = []
+            successes = 0
+            crashes = 0
+            distances_to_target = []
+            episode_lengths = []
             
             for episode in range(n_eval_episodes):
                 obs = eval_env.reset()
@@ -350,6 +354,17 @@ class EurekaTrainingManager:
                     episode_reward += reward[0]
                     
                     if done[0]:
+                        # Extract task metrics from info
+                        if len(info) > 0 and isinstance(info[0], dict):
+                            episode_info = info[0]
+                            if 'success' in episode_info:
+                                successes += int(episode_info['success'])
+                            if 'crash' in episode_info:
+                                crashes += int(episode_info['crash'])
+                            if 'distance_to_target' in episode_info:
+                                distances_to_target.append(float(episode_info['distance_to_target']))
+                            if 'episode_length' in episode_info:
+                                episode_lengths.append(int(episode_info['episode_length']))
                         break
                 
                 episode_rewards.append(episode_reward)
@@ -362,10 +377,17 @@ class EurekaTrainingManager:
                 'std_reward': float(np.std(episode_rewards)),
                 'min_reward': float(min(episode_rewards)),
                 'max_reward': float(max(episode_rewards)),
-                'episode_rewards': episode_rewards
+                'episode_rewards': episode_rewards,
+                'success_rate': float(successes / n_eval_episodes),
+                'crash_rate': float(crashes / n_eval_episodes),
+                'avg_distance_to_target': float(np.mean(distances_to_target)) if distances_to_target else None,
+                'avg_episode_length': float(np.mean(episode_lengths)) if episode_lengths else None
             }
             
             print(f"Mean reward: {results['mean_reward']:.2f} +/- {results['std_reward']:.2f}")
+            print(f"Success rate: {results['success_rate']*100:.1f}% | Crash rate: {results['crash_rate']*100:.1f}%")
+            if results['avg_distance_to_target'] is not None:
+                print(f"Avg distance to target: {results['avg_distance_to_target']:.2f}")
             return results
             
         except Exception as e:
@@ -440,6 +462,12 @@ class EurekaTrainingManager:
                     print(f"  Mean reward: {eval_res['mean_reward']:.2f} +/- {eval_res['std_reward']:.2f}")
                     print(f"  Min reward: {eval_res['min_reward']:.2f}")
                     print(f"  Max reward: {eval_res['max_reward']:.2f}")
+                    print(f"  Success rate: {eval_res['success_rate']*100:.1f}%")
+                    print(f"  Crash rate: {eval_res['crash_rate']*100:.1f}%")
+                    if eval_res['avg_distance_to_target'] is not None:
+                        print(f"  Avg distance to target: {eval_res['avg_distance_to_target']:.2f}")
+                    if eval_res['avg_episode_length'] is not None:
+                        print(f"  Avg episode length: {eval_res['avg_episode_length']:.1f} steps")
                     print(f"  Episodes: {len(eval_res['episode_rewards'])}")
                 else:
                     print("\nNo evaluation results available")
@@ -460,23 +488,44 @@ class EurekaTrainingManager:
             print(f"\nITERATIONS SUMMARY:")
             
             successful_iterations = []
+            best_success_rate = -1
+            best_success_iter = None
+            
             for iter_res in self.results['iterations']:
                 iter_num = iter_res['iteration']
                 success = "[OK]" if iter_res['training_success'] else "[FAIL]"
                 
                 if iter_res['evaluation_results']:
-                    mean_reward = iter_res['evaluation_results']['mean_reward']
-                    successful_iterations.append((iter_num, mean_reward))
-                    print(f"  Iteration {iter_num}: {success} Reward = {mean_reward:.2f}")
+                    eval_res = iter_res['evaluation_results']
+                    mean_reward = eval_res['mean_reward']
+                    success_rate = eval_res.get('success_rate', 0)
+                    
+                    successful_iterations.append((iter_num, mean_reward, success_rate))
+                    
+                    if success_rate > best_success_rate:
+                        best_success_rate = success_rate
+                        best_success_iter = (iter_num, eval_res)
+                    
+                    print(f"  Iteration {iter_num}: {success} Reward={mean_reward:.2f} | Success={success_rate*100:.1f}%")
                 else:
                     print(f"  Iteration {iter_num}: {success} No results")
             
             if successful_iterations:
-                print(f"\nBEST ITERATION:")
-                best_iter, best_reward = max(successful_iterations, key=lambda x: x[1])
-                print(f"  Iteration: #{best_iter}")
-                print(f"  Mean reward: {best_reward:.2f}")
-                print(f"  Model saved: models/model_iter{best_iter}_final.zip")
+                print(f"\nBEST ITERATION (by success rate):")
+                if best_success_iter:
+                    best_iter, best_eval = best_success_iter
+                    print(f"  Iteration: #{best_iter}")
+                    print(f"  Success rate: {best_eval['success_rate']*100:.1f}%")
+                    print(f"  Mean reward: {best_eval['mean_reward']:.2f}")
+                    print(f"  Crash rate: {best_eval['crash_rate']*100:.1f}%")
+                    if best_eval['avg_distance_to_target'] is not None:
+                        print(f"  Avg distance to target: {best_eval['avg_distance_to_target']:.2f}")
+                    print(f"  Model saved: models/model_iter{best_iter}_final.zip")
+                else:
+                    best_iter, best_reward, _ = max(successful_iterations, key=lambda x: x[1])
+                    print(f"  Iteration: #{best_iter} (by reward)")
+                    print(f"  Mean reward: {best_reward:.2f}")
+                    print(f"  Model saved: models/model_iter{best_iter}_final.zip")
             
             print("\n" + "=" * 60)
             print(f"All results saved to:\n  {self.session_dir}")
