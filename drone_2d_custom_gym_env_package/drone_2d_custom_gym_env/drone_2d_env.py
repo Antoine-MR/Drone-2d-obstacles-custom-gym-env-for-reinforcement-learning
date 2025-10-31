@@ -23,7 +23,7 @@ class Drone2dEnv(gym.Env):
 
     def __init__(self, render_sim=False, render_path=True, render_shade=True, shade_distance=70,
                  n_steps=500, n_fall_steps=10, change_target=False, initial_throw=True, 
-                 use_obstacles=True, num_obstacles=3, fixed_map=False):
+                 use_obstacles=True, num_obstacles=3, fixed_map=False, random_start=False):
 
         self.render_sim = render_sim
         self.render_path = render_path
@@ -45,7 +45,14 @@ class Drone2dEnv(gym.Env):
         self.use_obstacles = use_obstacles
         self.num_obstacles = num_obstacles
         self.fixed_map = fixed_map
+        self.random_start = random_start  # Position de départ aléatoire (même si map fixe)
 
+        #Generating target position (avant init_pymunk pour fixed_map)
+        if not self.fixed_map:
+            # Seulement si pas de map fixe
+            self.x_target = random.uniform(50, 750)
+            self.y_target = random.uniform(50, 750)
+        
         self.init_pymunk()
 
         #Initial values
@@ -55,10 +62,6 @@ class Drone2dEnv(gym.Env):
         self.current_time_step = 0
         self.left_force = -1
         self.right_force = -1
-
-        #Generating target position
-        self.x_target = random.uniform(50, 750)
-        self.y_target = random.uniform(50, 750)
 
         #Defining spaces for action and observation
         min_action = np.array([-1, -1], dtype=np.float32)
@@ -105,14 +108,31 @@ class Drone2dEnv(gym.Env):
 
         # Position du drone et de la cible
         if self.fixed_map:
-            # Positions fixes pour la map fixe
-            # Drone démarre à gauche, cible à droite (horizontal)
-            random_x = 150  # À gauche
-            random_y = 400  # Mi-hauteur
-            angle_rand = 0  # Angle droit
+            # Map fixe : obstacle et cible fixes
             # Cible fixe à droite
             self.x_target = 650
             self.y_target = 400
+            
+            # Position de départ du drone : fixe ou aléatoire selon random_start
+            if self.random_start:
+                # Position aléatoire MAIS dans des zones valides (pas sur l'obstacle)
+                # Zone gauche ou zones périphériques
+                zone = random.choice(['left', 'top', 'bottom'])
+                if zone == 'left':
+                    random_x = random.uniform(100, 250)  # Zone gauche
+                    random_y = random.uniform(200, 600)
+                elif zone == 'top':
+                    random_x = random.uniform(100, 700)
+                    random_y = random.uniform(500, 700)  # Zone haute
+                else:  # bottom
+                    random_x = random.uniform(100, 700)
+                    random_y = random.uniform(100, 300)  # Zone basse
+                angle_rand = random.uniform(-np.pi/6, np.pi/6)  # Petit angle aléatoire
+            else:
+                # Position fixe (pour l'entraînement de base)
+                random_x = 150  # À gauche
+                random_y = 400  # Mi-hauteur
+                angle_rand = 0  # Angle droit
         else:
             # Positions aléatoires (comportement original)
             random_x = random.uniform(200, 600)
@@ -275,10 +295,11 @@ class Drone2dEnv(gym.Env):
         use_obstacles = self.use_obstacles if hasattr(self, 'use_obstacles') else True
         num_obstacles = self.num_obstacles if hasattr(self, 'num_obstacles') else 3
         fixed_map = self.fixed_map if hasattr(self, 'fixed_map') else False
+        random_start = self.random_start if hasattr(self, 'random_start') else False
         
         self.__init__(render_sim, render_path, render_shade, shade_distance,
                       max_time_steps, stabilisation_delay, change_target, initial_throw,
-                      use_obstacles, num_obstacles, fixed_map)
+                      use_obstacles, num_obstacles, fixed_map, random_start)
         return self.get_observation(), {}
 
     def close(self):

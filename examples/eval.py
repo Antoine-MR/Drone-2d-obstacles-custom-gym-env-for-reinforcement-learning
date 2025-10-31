@@ -14,22 +14,9 @@ use_fixed_map = True #if True, utilise la map fixe pour l'évaluation
 
 render_sim = True #if True, a graphic is generated
 
-print("=" * 70)
-print("🎯 ÉVALUATION DE L'AGENT")
-print("=" * 70)
-if use_fixed_map:
-    print("Mode: MAP FIXE (même map que l'entraînement)")
-    print("  - Drone départ: (150, 400) - Gauche")
-    print("  - Cible: (650, 400) - Droite")
-    print("  - 1 obstacle central (carré 100x100)")
-    print("  - PAS de lancer initial (stabilité)")
-else:
-    print("Mode: MAP ALÉATOIRE (obstacles générés aléatoirement)")
-print("=" * 70)
-
 env = gym.make('drone-2d-custom-v0', render_sim=render_sim, render_path=True, render_shade=True,
             shade_distance=70, n_steps=500, n_fall_steps=10, change_target=False, initial_throw=False,
-            use_obstacles=True, num_obstacles=3, fixed_map=use_fixed_map)
+            use_obstacles=True, num_obstacles=3, fixed_map=use_fixed_map, random_start=True)
 
 """
 Chargement du modèle entraîné
@@ -37,7 +24,7 @@ Essaie plusieurs modèles dans l'ordre de préférence
 """
 # Liste des modèles à essayer dans l'ordre de préférence
 model_paths = [
-    "final_agentWithoutObstacle.zip",                              # Modèle final (s'il existe)
+    "final_agentWithObstacle.zip",                              # Modèle final (s'il existe)
 ]
 
 model = None
@@ -69,12 +56,6 @@ obs, info = env.reset()
 episode_count = 0
 total_reward = 0
 step_count = 0
-
-print(f"🚀 Démarrage de l'évaluation")
-print(f"   • Mode continu: {continuous_mode}")
-print(f"   • Actions aléatoires: {random_action}")
-print(f"   • Rendu graphique: {render_sim}")
-print("   • Appuyez sur Ctrl+C pour arrêter")
 
 try:
     while True:
