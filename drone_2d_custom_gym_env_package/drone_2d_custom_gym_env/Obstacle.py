@@ -11,16 +11,13 @@ class Obstacle:
         self.width = width
         self.height = height
         
-        # Créer le body statique
         self.body = pymunk.Body(body_type=pymunk.Body.STATIC)
         self.body.position = x, y
         
-        # Créer la forme rectangulaire
         self.shape = pymunk.Poly.create_box(self.body, (width, height))
         self.shape.friction = 0.7
         self.shape.color = pygame.Color(139, 69, 19)  # Couleur marron pour les obstacles
         
-        # Ajouter à l'espace physique
         space.add(self.body, self.shape)
 
 class ObstacleManager:
@@ -69,8 +66,8 @@ class ObstacleManager:
         """
         Vérifie si le drone entre en collision avec un obstacle en utilisant les positions et rayons
         """
-        # Rayon approximatif du drone (basé sur la largeur)
-        drone_radius = drone.drone_radius + 10  # Petit buffer pour la détection
+        # Rayon approximatif du drone
+        drone_radius = drone.drone_radius + 10 
         
         # Positions des différentes parties du drone
         drone_positions = [

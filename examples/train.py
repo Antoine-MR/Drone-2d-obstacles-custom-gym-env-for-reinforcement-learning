@@ -57,7 +57,7 @@ interrupt_callback = KeyboardInterruptCallback(save_path="checkpoint_agent", ver
 model = PPO("MlpPolicy", env, verbose=1, tensorboard_log="./tensorboard_logs/")
 
 try:
-    model.learn(total_timesteps=4000000, callback=interrupt_callback, progress_bar=True)
+    model.learn(total_timesteps=3000000, callback=interrupt_callback, progress_bar=True)
     # Si l'entraînement se termine normalement
     model.save('final_agent')
     print("Entraînement terminé! Modèle final sauvegardé: final_agent")

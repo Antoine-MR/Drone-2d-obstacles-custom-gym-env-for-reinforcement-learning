@@ -45,7 +45,7 @@ class Drone2dEnv(gym.Env):
         self.use_obstacles = use_obstacles
         self.num_obstacles = num_obstacles
         self.fixed_map = fixed_map
-        self.random_start = random_start  # Position de départ aléatoire (même si map fixe)
+        self.random_start = random_start
 
         #Generating target position (avant init_pymunk pour fixed_map)
         if not self.fixed_map:
@@ -115,8 +115,7 @@ class Drone2dEnv(gym.Env):
             
             # Position de départ du drone : fixe ou aléatoire selon random_start
             if self.random_start:
-                # Position aléatoire MAIS dans des zones valides (pas sur l'obstacle)
-                # Zone gauche ou zones périphériques
+                # Position aléatoire
                 zone = random.choice(['left', 'top', 'bottom'])
                 if zone == 'left':
                     random_x = random.uniform(100, 250)  # Zone gauche
@@ -127,18 +126,17 @@ class Drone2dEnv(gym.Env):
                 else:  # bottom
                     random_x = random.uniform(100, 700)
                     random_y = random.uniform(100, 300)  # Zone basse
-                angle_rand = random.uniform(-np.pi/6, np.pi/6)  # Petit angle aléatoire
+                angle_rand = random.uniform(-np.pi/6, np.pi/6) 
             else:
-                # Position fixe (pour l'entraînement de base)
-                random_x = 150  # À gauche
-                random_y = 400  # Mi-hauteur
-                angle_rand = 0  # Angle droit
+                # Position fixe 
+                random_x = 150  
+                random_y = 400  
+                angle_rand = 0 
         else:
-            # Positions aléatoires (comportement original)
+            # Positions aléatoires
             random_x = random.uniform(200, 600)
             random_y = random.uniform(200, 600)
             angle_rand = random.uniform(-np.pi/4, np.pi/4)
-            # La cible est déjà définie dans __init__ de façon aléatoire
 
         #Generating drone's starting position
         self.drone = Drone(random_x, random_y, angle_rand, 20, 100, 0.2, 0.4, 0.4, self.space)
@@ -360,4 +358,4 @@ class Drone2dEnv(gym.Env):
             self.num_obstacles = new_count
             if hasattr(self, 'obstacle_manager'):
                 self.obstacle_manager.add_random_obstacles(new_count)
-            print(f"🎯 Obstacles mis à jour: {new_count} obstacles actifs")
+            print(f"Obstacles mis à jour: {new_count} obstacles actifs")

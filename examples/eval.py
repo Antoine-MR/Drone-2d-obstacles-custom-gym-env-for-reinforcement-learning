@@ -8,11 +8,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'drone_2d_custo
 
 import drone_2d_custom_gym_env
 
-continuous_mode = True #if True, after completing one episode the next one will start automatically
-random_action = False #if True, the agent will take actions randomly
-use_fixed_map = True #if True, utilise la map fixe pour l'évaluation
+continuous_mode = True
+random_action = False
+use_fixed_map = True
 
-render_sim = True #if True, a graphic is generated
+render_sim = True 
 
 env = gym.make('drone-2d-custom-v0', render_sim=render_sim, render_path=True, render_shade=True,
             shade_distance=70, n_steps=500, n_fall_steps=10, change_target=False, initial_throw=False,
@@ -22,26 +22,28 @@ env = gym.make('drone-2d-custom-v0', render_sim=render_sim, render_path=True, re
 Chargement du modèle entraîné
 Essaie plusieurs modèles dans l'ordre de préférence
 """
-# Liste des modèles à essayer dans l'ordre de préférence
+
+BASE_PATH = "agents/"
+# Liste des modèles
 model_paths = [
-    "final_agentWithObstacle.zip",                              # Modèle final (s'il existe)
+    BASE_PATH + "final_agentRandomPosition.zip",
 ]
 
 model = None
 for model_path in model_paths:
     try:
         model = PPO.load(model_path)
-        print(f"✅ Modèle chargé: {model_path}")
+        print(f"Modèle chargé: {model_path}")
         break
     except FileNotFoundError:
-        print(f"⚠️  Modèle non trouvé: {model_path}")
+        print(f"Modèle non trouvé: {model_path}")
         continue
     except Exception as e:
-        print(f"❌ Erreur lors du chargement de {model_path}: {e}")
+        print(f"Erreur lors du chargement de {model_path}: {e}")
         continue
 
 if model is None:
-    print("❌ Aucun modèle trouvé! Veuillez d'abord entraîner un modèle.")
+    print("Aucun modèle trouvé! Veuillez d'abord entraîner un modèle.")
     exit(1)
 
 model.set_env(env)
@@ -88,8 +90,8 @@ try:
                 break
 
 except KeyboardInterrupt:
-    print(f"\n⚠️  Évaluation interrompue par l'utilisateur")
-    print(f"📊 Statistiques finales:")
+    print(f" Évaluation interrompue par l'utilisateur")
+    print(f"Statistiques finales:")
     print(f"   • Épisodes complétés: {episode_count}")
     if episode_count > 0:
         print(f"   • Récompense de l'épisode en cours: {total_reward:.2f}")
