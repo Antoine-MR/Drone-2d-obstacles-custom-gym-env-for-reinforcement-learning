@@ -28,10 +28,10 @@ training_sessions/archived_sessions/
 **/results/
 
 # Eureka outputs
-Eureka_for_carracing-master/**/outputs/
-Eureka_for_carracing-master/**/results/
-Eureka_for_carracing-master/**/models/
-Eureka_for_carracing-master/**/training_sessions/
+Eureka_for_drone/**/outputs/
+Eureka_for_drone/**/results/
+Eureka_for_drone/**/models/
+Eureka_for_drone/**/training_sessions/
 
 # Temporary files
 *.tmp

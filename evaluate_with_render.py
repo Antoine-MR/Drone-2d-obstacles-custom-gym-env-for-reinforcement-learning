@@ -31,8 +31,8 @@ import numpy as np
 from pathlib import Path
 
 # Ajouter les chemins necessaires
-sys.path.insert(0, str(Path(__file__).parent / "Eureka_for_carracing-master" / "Eureka_for_carracing-master" / "rl-baselines3-zoo"))
-sys.path.insert(0, str(Path(__file__).parent / "Eureka_for_carracing-master" / "Eureka_for_carracing-master" / "eureka" / "envs" / "drone_2d"))
+sys.path.insert(0, str(Path(__file__).parent / "Eureka_for_drone" / "Eureka_for_drone" / "rl-baselines3-zoo"))
+sys.path.insert(0, str(Path(__file__).parent / "Eureka_for_drone" / "Eureka_for_drone" / "eureka" / "envs" / "drone_2d"))
 sys.path.insert(0, str(Path(__file__).parent / "drone_2d_custom_gym_env_package"))
 
 from stable_baselines3 import PPO
@@ -84,7 +84,7 @@ def load_reward_function(reward_file_path):
     print(f"[INFO] Chargement de la fonction de recompense depuis: {reward_file_path}")
     
     # Copier le fichier reward dans drone_2d_obs.py
-    drone_2d_obs_path = Path(__file__).parent / "Eureka_for_carracing-master" / "Eureka_for_carracing-master" / "eureka" / "envs" / "drone_2d" / "drone_2d_obs.py"
+    drone_2d_obs_path = Path(__file__).parent / "Eureka_for_drone" / "Eureka_for_drone" / "eureka" / "envs" / "drone_2d" / "drone_2d_obs.py"
     
     # Lire le contenu du fichier reward
     with open(reward_file_path, 'r', encoding='utf-8') as f:

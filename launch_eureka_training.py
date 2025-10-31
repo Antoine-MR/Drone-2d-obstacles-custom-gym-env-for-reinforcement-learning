@@ -95,7 +95,7 @@ class EurekaTrainingManager:
         print(f"\nEUREKA ITERATION {iteration}")
         print("-" * 40)
         
-        eureka_dir = self.base_dir / "Eureka_for_carracing-master" / "Eureka_for_carracing-master"
+        eureka_dir = self.base_dir / "Eureka_for_drone" / "Eureka_for_drone"
         original_cwd = os.getcwd()
         
         try:
@@ -129,7 +129,7 @@ class EurekaTrainingManager:
             os.chdir(original_cwd)
             
     def save_reward_function(self, iteration):
-        eureka_dir = self.base_dir / "Eureka_for_carracing-master" / "Eureka_for_carracing-master"
+        eureka_dir = self.base_dir / "Eureka_for_drone" / "Eureka_for_drone"
         
         reward_files = list(eureka_dir.glob("**/env_iter*_response*.py"))
         
@@ -188,7 +188,7 @@ class EurekaTrainingManager:
                 
                 compute_reward_func = '\n'.join(func_lines)
                 
-                env_file = (self.base_dir / "Eureka_for_carracing-master" / "Eureka_for_carracing-master" / 
+                env_file = (self.base_dir / "Eureka_for_drone" / "Eureka_for_drone" / 
                            "eureka" / "envs" / "drone_2d" / "drone_2d_obs.py")
                 
                 if env_file.exists():
@@ -245,7 +245,7 @@ class EurekaTrainingManager:
             if not self.update_environment_reward(reward_file_path):
                 raise Exception("Failed to update reward function")
             
-            eureka_dir = self.base_dir / "Eureka_for_carracing-master" / "Eureka_for_carracing-master"
+            eureka_dir = self.base_dir / "Eureka_for_drone" / "Eureka_for_drone"
             original_cwd = os.getcwd()
             
             try:
