@@ -50,19 +50,6 @@ import rl_zoo3.import_envs  # noqa: F401
 from rl_zoo3.callbacks import SaveVecNormalizeCallback, TrialEvalCallback
 from rl_zoo3.hyperparams_opt import HYPERPARAMS_SAMPLER
 from rl_zoo3.utils import ALGOS, get_callback_list, get_class_by_name, get_latest_run_id, get_wrapper_class, linear_schedule
-
-gym.register(
-    id='CarRacingCustomTrain-v0',
-    entry_point='car_racing_custom:CarRacingCustom',
-    max_episode_steps=1000,
-    reward_threshold=900,
-)
-gym.register(
-    id='CarRacingCustomTest-v0',
-    entry_point='car_racing_custom:CarRacingCustom',
-    max_episode_steps=1000,
-    reward_threshold=900,
-)
 import os
 import numpy as np
 from stable_baselines3.common.callbacks import BaseCallback

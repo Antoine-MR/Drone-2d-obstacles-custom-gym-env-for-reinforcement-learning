@@ -152,8 +152,8 @@ Additional Atari Games (to be completed):
 
 ### Box2D Environments
 
-|  RL Algo |  BipedalWalker-v3 | LunarLander-v2 | LunarLanderContinuous-v2 |  BipedalWalkerHardcore-v3 | CarRacing-v0 |
-|----------|--------------|----------------|------------|--------------|--------------------------|
+|  RL Algo |  BipedalWalker-v3 | LunarLander-v2 | LunarLanderContinuous-v2 |  BipedalWalkerHardcore-v3 |
+|----------|--------------|----------------|------------|--------------|
 | ARS      |  | :heavy_check_mark: | | :heavy_check_mark: | |
 | A2C      | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | PPO      | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |

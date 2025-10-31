@@ -18,81 +18,81 @@ and also allow users to have access to pretrained agents.*
 
 "M" stands for Million (1e6)
 
-|  algo  |            env_id             |mean_reward|std_reward|n_timesteps|eval_timesteps|eval_episodes|
-|--------|-------------------------------|----------:|---------:|-----------|-------------:|------------:|
-|a2c     |Acrobot-v1                     |    -83.353|    17.213|500k       |        149979|         1778|
-|a2c     |Ant-v3                         |    -44.023|    63.206|1M         |        149469|          761|
-|a2c     |AntBulletEnv-v0                |   2497.147|    37.359|2M         |        150000|          150|
-|a2c     |AsteroidsNoFrameskip-v4        |   1286.550|   423.750|10M        |        614138|          258|
-|a2c     |BeamRiderNoFrameskip-v4        |   2890.298|  1379.137|10M        |        591104|           47|
-|a2c     |BipedalWalker-v3               |    299.754|    23.459|5M         |        149287|          208|
-|a2c     |BipedalWalkerHardcore-v3       |     96.171|   122.943|200M       |        149704|          113|
-|a2c     |BreakoutNoFrameskip-v4         |    279.793|   122.177|10M        |        604115|           82|
-|a2c     |CartPole-v1                    |    500.000|     0.000|500k       |        150000|          300|
-|a2c     |EnduroNoFrameskip-v4           |      0.000|     0.000|10M        |        599040|           45|
-|a2c     |HalfCheetah-v3                 |   3041.174|   157.265|1M         |        150000|          150|
-|a2c     |HalfCheetahBulletEnv-v0        |   2107.384|    36.008|2M         |        150000|          150|
-|a2c     |Hopper-v3                      |    733.454|   376.574|1M         |        149987|          580|
-|a2c     |HopperBulletEnv-v0             |    815.355|   313.798|2M         |        149541|          254|
-|a2c     |Humanoid-v3                    |    388.321|    92.652|2M         |        149942|         1944|
-|a2c     |LunarLander-v2                 |    155.751|    80.419|200k       |        149443|          297|
-|a2c     |LunarLanderContinuous-v2       |     84.225|   145.906|5M         |        149305|          256|
-|a2c     |MountainCar-v0                 |   -111.263|    24.087|1M         |        149982|         1348|
-|a2c     |MountainCarContinuous-v0       |     91.166|     0.255|100k       |        149923|         1659|
-|a2c     |MsPacmanNoFrameskip-v4         |   1671.730|   612.918|10M        |        602450|          185|
-|a2c     |Pendulum-v1                    |   -162.965|   103.210|1M         |        150000|          750|
-|a2c     |PongNoFrameskip-v4             |     17.292|     3.214|10M        |        594910|           65|
-|a2c     |QbertNoFrameskip-v4            |   3882.345|  1223.327|10M        |        610670|          194|
-|a2c     |ReacherBulletEnv-v0            |     14.968|    10.978|2M         |        150000|         1000|
-|a2c     |RoadRunnerNoFrameskip-v4       |  31671.512|  6364.085|10M        |        606710|          172|
-|a2c     |SeaquestNoFrameskip-v4         |   1721.493|   105.339|10M        |        599691|           67|
-|a2c     |SpaceInvadersNoFrameskip-v4    |    627.160|   201.974|10M        |        604848|          162|
-|a2c     |Swimmer-v3                     |    200.627|     2.544|1M         |        150000|          150|
-|a2c     |Walker2DBulletEnv-v0           |    858.209|   333.116|2M         |        149156|          173|
-|a2c     |Walker2d-v3                    |    581.835|   127.597|1M         |        149782|          593|
-|ars     |Acrobot-v1                     |    -82.884|    23.825|500k       |        149985|         1788|
-|ars     |Ant-v3                         |   2333.773|    20.597|75M        |        150000|          150|
-|ars     |CartPole-v1                    |    500.000|     0.000|50k        |        150000|          300|
-|ars     |HalfCheetah-v3                 |   4815.192|  1340.752|12M        |        150000|          150|
-|ars     |Hopper-v3                      |   3343.919|     5.730|7M         |        150000|          150|
-|ars     |LunarLanderContinuous-v2       |    167.959|   147.071|2M         |        149883|          562|
-|ars     |MountainCar-v0                 |   -122.000|    33.456|500k       |        149938|         1229|
-|ars     |MountainCarContinuous-v0       |     96.672|     0.784|500k       |        149990|          621|
-|ars     |Pendulum-v1                    |   -212.540|   160.444|2M         |        150000|          750|
-|ars     |Swimmer-v3                     |    355.267|    12.796|2M         |        150000|          150|
-|ars     |Walker2d-v3                    |   2993.582|   166.289|75M        |        149821|          152|
-|ddpg    |AntBulletEnv-v0                |   2399.147|    75.410|1M         |        150000|          150|
-|ddpg    |BipedalWalker-v3               |    197.486|   141.580|1M         |        149237|          227|
-|ddpg    |HalfCheetahBulletEnv-v0        |   2078.325|   208.379|1M         |        150000|          150|
-|ddpg    |HopperBulletEnv-v0             |   1157.065|   448.695|1M         |        149565|          346|
-|ddpg    |LunarLanderContinuous-v2       |    230.217|    92.372|300k       |        149862|          556|
-|ddpg    |MountainCarContinuous-v0       |     93.512|     0.048|300k       |        149965|         2260|
-|ddpg    |Pendulum-v1                    |   -152.099|    94.282|20k        |        150000|          750|
-|ddpg    |ReacherBulletEnv-v0            |     15.582|     9.606|300k       |        150000|         1000|
-|ddpg    |Walker2DBulletEnv-v0           |   1387.591|   736.955|1M         |        149051|          208|
-|dqn     |Acrobot-v1                     |    -76.639|    11.752|100k       |        149998|         1932|
-|dqn     |AsteroidsNoFrameskip-v4        |    782.687|   259.247|10M        |        607962|          134|
-|dqn     |BeamRiderNoFrameskip-v4        |   4295.946|  1790.458|10M        |        600832|           37|
-|dqn     |BreakoutNoFrameskip-v4         |    358.327|    61.981|10M        |        601461|           55|
-|dqn     |CartPole-v1                    |    500.000|     0.000|50k        |        150000|          300|
-|dqn     |EnduroNoFrameskip-v4           |    830.929|   194.544|10M        |        599040|           14|
-|dqn     |LunarLander-v2                 |    154.382|    79.241|100k       |        149373|          200|
-|dqn     |MountainCar-v0                 |   -100.849|     9.925|120k       |        149962|         1487|
-|dqn     |MsPacmanNoFrameskip-v4         |   2682.929|   492.567|10M        |        599952|          140|
-|dqn     |PongNoFrameskip-v4             |     20.602|     0.613|10M        |        598998|           88|
-|dqn     |QbertNoFrameskip-v4            |   9496.774|  5399.633|10M        |        605844|          124|
-|dqn     |RoadRunnerNoFrameskip-v4       |  40396.350|  7069.131|10M        |        603257|          137|
-|dqn     |SeaquestNoFrameskip-v4         |   2000.290|   606.644|10M        |        599505|           69|
-|dqn     |SpaceInvadersNoFrameskip-v4    |    622.742|   201.564|10M        |        604311|          155|
-|ppo     |Acrobot-v1                     |    -73.506|    18.201|1M         |        149979|         2013|
-|ppo     |Ant-v3                         |   1327.158|   451.577|1M         |        149572|          175|
-|ppo     |AntBulletEnv-v0                |   2865.922|    56.468|2M         |        150000|          150|
-|ppo     |AsteroidsNoFrameskip-v4        |   2156.174|   744.640|10M        |        602092|          149|
-|ppo     |BeamRiderNoFrameskip-v4        |   3397.000|  1662.368|10M        |        598926|           46|
-|ppo     |BipedalWalker-v3               |    287.939|     2.448|5M         |        149589|          123|
-|ppo     |BipedalWalkerHardcore-v3       |    122.374|   117.605|100M       |        148036|          105|
-|ppo     |BreakoutNoFrameskip-v4         |    398.033|    33.328|10M        |        600418|           60|
-|ppo     |CarRacing-v0                   |    153.938|    74.465|4M         |        179000|          179|
+| algo | env_id                      | mean_reward | std_reward | n_timesteps | eval_timesteps | eval_episodes |
+| ---- | --------------------------- | ----------: | ---------: | ----------- | -------------: | ------------: |
+| a2c  | Acrobot-v1                  |     -83.353 |     17.213 | 500k        |         149979 |          1778 |
+| a2c  | Ant-v3                      |     -44.023 |     63.206 | 1M          |         149469 |           761 |
+| a2c  | AntBulletEnv-v0             |    2497.147 |     37.359 | 2M          |         150000 |           150 |
+| a2c  | AsteroidsNoFrameskip-v4     |    1286.550 |    423.750 | 10M         |         614138 |           258 |
+| a2c  | BeamRiderNoFrameskip-v4     |    2890.298 |   1379.137 | 10M         |         591104 |            47 |
+| a2c  | BipedalWalker-v3            |     299.754 |     23.459 | 5M          |         149287 |           208 |
+| a2c  | BipedalWalkerHardcore-v3    |      96.171 |    122.943 | 200M        |         149704 |           113 |
+| a2c  | BreakoutNoFrameskip-v4      |     279.793 |    122.177 | 10M         |         604115 |            82 |
+| a2c  | CartPole-v1                 |     500.000 |      0.000 | 500k        |         150000 |           300 |
+| a2c  | EnduroNoFrameskip-v4        |       0.000 |      0.000 | 10M         |         599040 |            45 |
+| a2c  | HalfCheetah-v3              |    3041.174 |    157.265 | 1M          |         150000 |           150 |
+| a2c  | HalfCheetahBulletEnv-v0     |    2107.384 |     36.008 | 2M          |         150000 |           150 |
+| a2c  | Hopper-v3                   |     733.454 |    376.574 | 1M          |         149987 |           580 |
+| a2c  | HopperBulletEnv-v0          |     815.355 |    313.798 | 2M          |         149541 |           254 |
+| a2c  | Humanoid-v3                 |     388.321 |     92.652 | 2M          |         149942 |          1944 |
+| a2c  | LunarLander-v2              |     155.751 |     80.419 | 200k        |         149443 |           297 |
+| a2c  | LunarLanderContinuous-v2    |      84.225 |    145.906 | 5M          |         149305 |           256 |
+| a2c  | MountainCar-v0              |    -111.263 |     24.087 | 1M          |         149982 |          1348 |
+| a2c  | MountainCarContinuous-v0    |      91.166 |      0.255 | 100k        |         149923 |          1659 |
+| a2c  | MsPacmanNoFrameskip-v4      |    1671.730 |    612.918 | 10M         |         602450 |           185 |
+| a2c  | Pendulum-v1                 |    -162.965 |    103.210 | 1M          |         150000 |           750 |
+| a2c  | PongNoFrameskip-v4          |      17.292 |      3.214 | 10M         |         594910 |            65 |
+| a2c  | QbertNoFrameskip-v4         |    3882.345 |   1223.327 | 10M         |         610670 |           194 |
+| a2c  | ReacherBulletEnv-v0         |      14.968 |     10.978 | 2M          |         150000 |          1000 |
+| a2c  | RoadRunnerNoFrameskip-v4    |   31671.512 |   6364.085 | 10M         |         606710 |           172 |
+| a2c  | SeaquestNoFrameskip-v4      |    1721.493 |    105.339 | 10M         |         599691 |            67 |
+| a2c  | SpaceInvadersNoFrameskip-v4 |     627.160 |    201.974 | 10M         |         604848 |           162 |
+| a2c  | Swimmer-v3                  |     200.627 |      2.544 | 1M          |         150000 |           150 |
+| a2c  | Walker2DBulletEnv-v0        |     858.209 |    333.116 | 2M          |         149156 |           173 |
+| a2c  | Walker2d-v3                 |     581.835 |    127.597 | 1M          |         149782 |           593 |
+| ars  | Acrobot-v1                  |     -82.884 |     23.825 | 500k        |         149985 |          1788 |
+| ars  | Ant-v3                      |    2333.773 |     20.597 | 75M         |         150000 |           150 |
+| ars  | CartPole-v1                 |     500.000 |      0.000 | 50k         |         150000 |           300 |
+| ars  | HalfCheetah-v3              |    4815.192 |   1340.752 | 12M         |         150000 |           150 |
+| ars  | Hopper-v3                   |    3343.919 |      5.730 | 7M          |         150000 |           150 |
+| ars  | LunarLanderContinuous-v2    |     167.959 |    147.071 | 2M          |         149883 |           562 |
+| ars  | MountainCar-v0              |    -122.000 |     33.456 | 500k        |         149938 |          1229 |
+| ars  | MountainCarContinuous-v0    |      96.672 |      0.784 | 500k        |         149990 |           621 |
+| ars  | Pendulum-v1                 |    -212.540 |    160.444 | 2M          |         150000 |           750 |
+| ars  | Swimmer-v3                  |     355.267 |     12.796 | 2M          |         150000 |           150 |
+| ars  | Walker2d-v3                 |    2993.582 |    166.289 | 75M         |         149821 |           152 |
+| ddpg | AntBulletEnv-v0             |    2399.147 |     75.410 | 1M          |         150000 |           150 |
+| ddpg | BipedalWalker-v3            |     197.486 |    141.580 | 1M          |         149237 |           227 |
+| ddpg | HalfCheetahBulletEnv-v0     |    2078.325 |    208.379 | 1M          |         150000 |           150 |
+| ddpg | HopperBulletEnv-v0          |    1157.065 |    448.695 | 1M          |         149565 |           346 |
+| ddpg | LunarLanderContinuous-v2    |     230.217 |     92.372 | 300k        |         149862 |           556 |
+| ddpg | MountainCarContinuous-v0    |      93.512 |      0.048 | 300k        |         149965 |          2260 |
+| ddpg | Pendulum-v1                 |    -152.099 |     94.282 | 20k         |         150000 |           750 |
+| ddpg | ReacherBulletEnv-v0         |      15.582 |      9.606 | 300k        |         150000 |          1000 |
+| ddpg | Walker2DBulletEnv-v0        |    1387.591 |    736.955 | 1M          |         149051 |           208 |
+| dqn  | Acrobot-v1                  |     -76.639 |     11.752 | 100k        |         149998 |          1932 |
+| dqn  | AsteroidsNoFrameskip-v4     |     782.687 |    259.247 | 10M         |         607962 |           134 |
+| dqn  | BeamRiderNoFrameskip-v4     |    4295.946 |   1790.458 | 10M         |         600832 |            37 |
+| dqn  | BreakoutNoFrameskip-v4      |     358.327 |     61.981 | 10M         |         601461 |            55 |
+| dqn  | CartPole-v1                 |     500.000 |      0.000 | 50k         |         150000 |           300 |
+| dqn  | EnduroNoFrameskip-v4        |     830.929 |    194.544 | 10M         |         599040 |            14 |
+| dqn  | LunarLander-v2              |     154.382 |     79.241 | 100k        |         149373 |           200 |
+| dqn  | MountainCar-v0              |    -100.849 |      9.925 | 120k        |         149962 |          1487 |
+| dqn  | MsPacmanNoFrameskip-v4      |    2682.929 |    492.567 | 10M         |         599952 |           140 |
+| dqn  | PongNoFrameskip-v4          |      20.602 |      0.613 | 10M         |         598998 |            88 |
+| dqn  | QbertNoFrameskip-v4         |    9496.774 |   5399.633 | 10M         |         605844 |           124 |
+| dqn  | RoadRunnerNoFrameskip-v4    |   40396.350 |   7069.131 | 10M         |         603257 |           137 |
+| dqn  | SeaquestNoFrameskip-v4      |    2000.290 |    606.644 | 10M         |         599505 |            69 |
+| dqn  | SpaceInvadersNoFrameskip-v4 |     622.742 |    201.564 | 10M         |         604311 |           155 |
+| ppo  | Acrobot-v1                  |     -73.506 |     18.201 | 1M          |         149979 |          2013 |
+| ppo  | Ant-v3                      |    1327.158 |    451.577 | 1M          |         149572 |           175 |
+| ppo  | AntBulletEnv-v0             |    2865.922 |     56.468 | 2M          |         150000 |           150 |
+| ppo  | AsteroidsNoFrameskip-v4     |    2156.174 |    744.640 | 10M         |         602092 |           149 |
+| ppo  | BeamRiderNoFrameskip-v4     |    3397.000 |   1662.368 | 10M         |         598926 |            46 |
+| ppo  | BipedalWalker-v3            |     287.939 |      2.448 | 5M          |         149589 |           123 |
+| ppo  | BipedalWalkerHardcore-v3    |     122.374 |    117.605 | 100M        |         148036 |           105 |
+| ppo  | BreakoutNoFrameskip-v4      |     398.033 |     33.328 | 10M         |         600418 |            60 |
+<!-- CarRacing ppo entry removed -->
 |ppo     |CartPole-v1                    |    500.000|     0.000|100k       |        150000|          300|
 |ppo     |EnduroNoFrameskip-v4           |    996.364|   176.090|10M        |        572416|           11|
 |ppo     |HalfCheetah-v3                 |   5819.099|   663.530|1M         |        150000|          150|
@@ -125,7 +125,6 @@ and also allow users to have access to pretrained agents.*
 |ppo     |Swimmer-v3                     |    281.561|     9.671|1M         |        150000|          150|
 |ppo     |Walker2DBulletEnv-v0           |   2109.992|    13.899|2M         |        150000|          150|
 |ppo     |Walker2d-v3                    |   3478.798|   821.708|1M         |        149343|          171|
-|ppo_lstm|CarRacing-v0                   |    862.549|    97.342|4M         |        149588|          156|
 |ppo_lstm|CartPoleNoVel-v1               |    500.000|     0.000|100k       |        150000|          300|
 |ppo_lstm|MountainCarContinuousNoVel-v0  |     91.469|     1.776|300k       |        149882|         1340|
 |ppo_lstm|PendulumNoVel-v1               |   -217.933|   140.094|100k       |        150000|          750|

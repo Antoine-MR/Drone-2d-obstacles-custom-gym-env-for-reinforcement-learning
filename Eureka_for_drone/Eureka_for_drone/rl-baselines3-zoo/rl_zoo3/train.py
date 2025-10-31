@@ -16,19 +16,6 @@ import rl_zoo3.import_envs  # noqa: F401
 from rl_zoo3.exp_manager import ExperimentManager
 from rl_zoo3.utils import ALGOS, StoreDict
 
-gym.register(
-    id='CarRacingCustomTrain-v0',
-    entry_point='car_racing_custom:CarRacingCustom',
-    max_episode_steps=1000,
-    reward_threshold=900,
-)
-gym.register(
-    id='CarRacingCustomTest-v0',
-    entry_point='car_racing_custom:CarRacingCustom',
-    max_episode_steps=1000,
-    reward_threshold=900,
-)
-
 
 def train() -> None:
     parser = argparse.ArgumentParser()

@@ -247,23 +247,6 @@ parking-v0:
     n_sampled_goal=4,
   )"
 
-# Tuned
-CarRacing-v0:
-  env_wrapper:
-    - rl_zoo3.wrappers.FrameSkip:
-        skip: 2
-    # wrapper from https://github.com/araffin/aae-train-donkeycar
-    - ae.wrapper.AutoencoderWrapper:
-        ae_path: "logs/car_racing_rgb_160.pkl"
-    - rl_zoo3.wrappers.HistoryWrapper:
-        horizon: 2
-  # frame_stack: 4
-  normalize: True
-  n_envs: 2
-  n_timesteps: !!float 1e6
-  policy: 'MlpPolicy'
-  train_freq: 8
-  gradient_steps: 10
 
 A1Walking-v0:
   <<: *pybullet-defaults
