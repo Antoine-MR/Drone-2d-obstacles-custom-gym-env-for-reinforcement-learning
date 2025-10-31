@@ -1,0 +1,59 @@
+# Python cache files
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Python packaging
+*.egg-info/
+build/
+dist/
+
+# Project specific cache
+/drone_2d_custom_gym_env_package/drone_2d_custom_gym_env/__pycache__
+
+# Outputs and results
+outputs/
+results/
+logs/
+tensorboard_logs/
+models/
+checkpoints/
+
+# Training sessions (garder seulement les importantes)
+training_sessions/archived_sessions/
+**/training_sessions/eureka_session_*/
+**/outputs/
+**/models/
+**/results/
+
+# Eureka outputs
+Eureka_for_drone/**/outputs/
+Eureka_for_drone/**/results/
+Eureka_for_drone/**/models/
+Eureka_for_drone/**/training_sessions/
+
+# Temporary files
+*.tmp
+*.temp
+temp.*
+test_*.py
+
+# Weights & Biases
+wandb/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

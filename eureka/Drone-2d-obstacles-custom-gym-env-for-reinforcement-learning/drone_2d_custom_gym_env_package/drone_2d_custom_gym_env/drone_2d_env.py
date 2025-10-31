@@ -60,9 +60,14 @@ class Drone2dEnv(gym.Env):
         max_action = np.array([1, 1], dtype=np.float32)
         self.action_space = spaces.Box(low=min_action, high=max_action, dtype=np.float32)
 
-        min_observation = np.array([-1, -1, -1, -1, -1, -1, -1, -1], dtype=np.float32)
-        max_observation = np.array([1, 1, 1, 1, 1, 1, 1, 1], dtype=np.float32)
-        self.observation_space = spaces.Box(low=min_observation, high=max_observation, dtype=np.float32)
+        # Observation space as Dict
+        self.observation_space = spaces.Dict({
+            'velocity': spaces.Box(low=-1, high=1, shape=(2,), dtype=np.float32),
+            'angular_velocity': spaces.Box(low=-1, high=1, shape=(1,), dtype=np.float32),
+            'angle': spaces.Box(low=-1, high=1, shape=(1,), dtype=np.float32),
+            'target_distance': spaces.Box(low=-1, high=1, shape=(2,), dtype=np.float32),
+            'position': spaces.Box(low=-1, high=1, shape=(2,), dtype=np.float32)
+        })
 
     def init_pygame(self):
         pygame.init()
@@ -132,10 +137,10 @@ class Drone2dEnv(gym.Env):
 
         #Calulating reward function
         obs = self.get_observation()
-        reward = (1.0/(np.abs(obs[4])+0.1)) + (1.0/(np.abs(obs[5])+0.1))
+        reward = (1.0/(np.abs(obs['target_distance'][0])+0.1)) + (1.0/(np.abs(obs['target_distance'][1])+0.1))
 
         #Stops episode, when drone is out of range or overlaps
-        if np.abs(obs[3])==1 or np.abs(obs[6])==1 or np.abs(obs[7])==1:
+        if np.abs(obs['angle'])==1 or np.abs(obs['position'][0])==1 or np.abs(obs['position'][1])==1:
             self.done = True
             reward = -10
 
@@ -173,7 +178,13 @@ class Drone2dEnv(gym.Env):
         pos_x = np.clip(x/400.0 - 1, -1, 1)
         pos_y = np.clip(y/400.0 - 1, -1, 1)
 
-        return np.array([velocity_x, velocity_y, omega, alpha, distance_x, distance_y, pos_x, pos_y])
+        return {
+            'velocity': np.array([velocity_x, velocity_y], dtype=np.float32),
+            'angular_velocity': np.array([omega], dtype=np.float32),
+            'angle': np.array([alpha], dtype=np.float32),
+            'target_distance': np.array([distance_x, distance_y], dtype=np.float32),
+            'position': np.array([pos_x, pos_y], dtype=np.float32)
+        }
 
     def render(self, mode='human', close=False):
         if self.render_sim is False: return
